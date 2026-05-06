@@ -62,13 +62,12 @@
     box-shadow: 0 0 2px 0.5px rgba(255, 255, 255, 0.25);
   }
   body.dark .actions button {
-    background: rgba(40, 25, 60, 0.55);
-    border-color: rgba(180, 150, 220, 0.3);
+    background: transparent;
     color: #f0eaff;
   }
   body.dark .actions button:hover {
-    background: rgba(60, 40, 90, 0.75);
-    border-color: rgba(200, 170, 240, 0.5);
+    color: #d8c4f8;
+    background: transparent;
   }
   body.dark .brand { color: #c0aedc; }
   body.dark .brand .count { color: #d8c4f8; }
@@ -76,18 +75,17 @@
   body.dark .empty-orb .title { color: #f0eaff; text-shadow: 0 1px 12px rgba(120, 80, 180, 0.6); }
   body.dark .empty-orb .sub { color: #b8a4d0; text-shadow: 0 1px 8px rgba(80, 40, 120, 0.6); }
   body.dark .capture {
-    background: rgba(30, 18, 50, 0.65);
-    border-color: rgba(180, 150, 220, 0.3);
-    box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(180, 150, 220, 0.15) inset;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
   }
   body.dark .capture textarea { color: #f0eaff; }
   body.dark .capture textarea::placeholder { color: rgba(200, 180, 230, 0.5); }
   body.dark .meta-chip {
-    background: rgba(50, 30, 80, 0.6);
-    border-color: rgba(180, 150, 220, 0.3);
+    background: transparent;
     color: #d8c4f8;
   }
-  body.dark .meta-chip:hover { background: rgba(70, 45, 105, 0.8); border-color: #c8a8f0; color: #f0eaff; }
+  body.dark .meta-chip:hover { color: #f0eaff; background: transparent; }
   body.dark .panel, body.dark .patterns {
     background: rgba(30, 18, 50, 0.78);
     border-color: rgba(180, 150, 220, 0.3);
@@ -96,8 +94,8 @@
   body.dark .panel .when, body.dark .patterns .sub { color: #b8a4d0; }
   body.dark .panel .body, body.dark .patterns h3, body.dark .patterns-content { color: #f0eaff; }
   body.dark .panel .meta-line { color: #d8c4f8; }
-  body.dark .panel-actions button { color: #d8c4f8; border-color: rgba(180, 150, 220, 0.3); }
-  body.dark .panel-actions button:hover { color: #f0eaff; border-color: #c8a8f0; }
+  body.dark .panel-actions button { color: #d8c4f8; background: rgba(180, 150, 220, 0.15); }
+  body.dark .panel-actions button:hover { color: #f0eaff; background: rgba(180, 150, 220, 0.28); }
   body.dark .related-item { color: #d8c4f8; border-color: rgba(180, 150, 220, 0.2); }
   body.dark .library {
     background: rgba(30, 18, 50, 0.95);
@@ -141,24 +139,42 @@
   @keyframes cloud2 { 0% { transform: translateX(30%); } 100% { transform: translateX(-60vw); } }
   @keyframes cloud3 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-10%, 5%); } }
 
-  /* tiny sparkle particles — kept very subtle */
+  /* tiny sparkle particles — many, faint, very slow wink.
+     Masked so stars sitting behind the orb fade out — only the surrounding sky shows them. */
+  .stars {
+    z-index: 2;
+    -webkit-mask: radial-gradient(circle at center,
+      transparent 0,
+      transparent 36vmin,
+      rgba(0,0,0,0.4) 44vmin,
+      black 60vmin);
+            mask: radial-gradient(circle at center,
+      transparent 0,
+      transparent 36vmin,
+      rgba(0,0,0,0.4) 44vmin,
+      black 60vmin);
+  }
   .stars > div {
     position: absolute;
-    width: 1.5px; height: 1.5px; border-radius: 50%;
-    background: rgba(255, 255, 255, 0.7);
-    box-shadow: 0 0 2px 0.5px rgba(255,255,255,0.3);
-    animation: twinkle 4s ease-in-out infinite;
+    width: 2px; height: 2px; border-radius: 50%;
+    background: rgba(150, 110, 180, 0.8);
+    box-shadow: 0 0 3px 1px rgba(180, 150, 210, 0.4);
+  }
+  body.dark .stars > div {
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 0 3px 1px rgba(255, 255, 255, 0.5);
   }
   @keyframes twinkle {
-    0%, 100% { opacity: 0.08; transform: scale(0.7); }
-    50%      { opacity: 0.32; transform: scale(1.0); }
+    0%   { opacity: 0;   transform: scale(0.4); }
+    40%  { opacity: 0.5; transform: scale(1.0); }
+    60%  { opacity: 0.5; transform: scale(1.0); }
+    100% { opacity: 0;   transform: scale(0.4); }
   }
 
-  /* aura behind the orb */
+  /* aura behind the orb — driven by JS each frame to follow camera */
   .aura {
     position: fixed;
     top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
     width: 80vmin; height: 80vmin;
     border-radius: 50%;
     pointer-events: none;
@@ -172,14 +188,10 @@
       rgba(170, 210, 250, 0.85),
       rgba(210, 180, 240, 0.85),
       rgba(255, 170, 200, 0.85));
-    animation: aura-spin 80s linear infinite;
     opacity: 0.95;
     z-index: 1;
     transition: filter 0.4s ease;
-  }
-  @keyframes aura-spin {
-    from { transform: translate(-50%, -50%) rotate(0deg); }
-    to   { transform: translate(-50%, -50%) rotate(360deg); }
+    will-change: transform;
   }
 
   /* canvas */
@@ -215,40 +227,41 @@
     font-weight: 500;
     letter-spacing: 1px;
   }
-  .actions { display: flex; gap: 6px; }
+  .actions {
+    display: flex; gap: 4px;
+  }
   .actions button {
-    background: rgba(255, 255, 255, 0.55);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border: 1px solid rgba(255, 255, 255, 0.65);
+    background: transparent;
+    border: 0;
     color: var(--ink);
     padding: 7px 13px;
     border-radius: 999px;
     font-size: 11px;
     letter-spacing: 0.5px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: color 0.2s, transform 0.2s;
     font-family: var(--sans);
   }
   .actions button:hover {
-    background: rgba(255, 255, 255, 0.8);
+    color: var(--accent);
     transform: translateY(-1px);
-    border-color: var(--accent-soft);
   }
 
-  /* hint */
+  /* hint — centered on the orb, fades out after 10 seconds */
   .hint {
     position: fixed;
-    bottom: 130px; left: 50%;
-    transform: translateX(-50%);
-    color: var(--ink-faint);
-    font-size: 11px; letter-spacing: 1.5px;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    color: #000;
+    font-size: 11px; letter-spacing: 1.8px;
     pointer-events: none;
     z-index: 10;
     text-align: center;
-    transition: opacity 0.4s;
+    transition: opacity 1.5s ease;
+    opacity: 1;
   }
-  .hint.fade { opacity: 0.3; }
+  body.dark .hint { color: #000; }
+  .hint.fade { opacity: 0; }
 
   /* empty state */
   .empty-orb {
@@ -280,17 +293,17 @@
 
   /* capture bar */
   .capture {
-    position: fixed; bottom: 28px; left: 50%;
+    position: fixed; bottom: 24px; left: 50%;
     transform: translateX(-50%);
-    width: min(580px, 92vw);
-    background: rgba(255, 255, 255, 0.62);
-    backdrop-filter: blur(22px);
-    -webkit-backdrop-filter: blur(22px);
-    border: 1px solid rgba(255, 255, 255, 0.7);
-    border-radius: 24px;
-    padding: 14px 18px 12px;
-    box-shadow: 0 20px 50px -20px rgba(80, 60, 100, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.4) inset;
+    width: min(620px, 92vw);
+    background: transparent;
+    border: 0;
+    padding: 0;
     z-index: 25;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
   }
   .capture textarea {
     width: 100%;
@@ -301,39 +314,45 @@
     color: var(--ink);
     min-height: 24px;
     overflow: hidden;
+    text-align: center;
   }
   .capture textarea::placeholder { color: var(--ink-faint); font-style: italic; }
   .capture-meta {
-    display: flex; gap: 6px; align-items: center; margin-top: 8px;
-    flex-wrap: wrap;
+    display: flex; gap: 14px; align-items: center; margin-top: 4px;
+    justify-content: center;
+    width: 100%;
   }
   .meta-chip {
-    background: rgba(255, 255, 255, 0.65);
-    border: 1px solid var(--line);
-    padding: 4px 11px; border-radius: 999px;
+    background: transparent;
+    border: 0;
+    padding: 5px 8px;
     font-size: 11px; color: var(--ink-soft);
     cursor: pointer;
     display: inline-flex; align-items: center; gap: 5px;
-    transition: all 0.15s;
+    transition: color 0.15s, transform 0.15s;
     font-family: var(--sans);
   }
-  .meta-chip:hover { background: rgba(255, 255, 255, 0.9); border-color: var(--accent); color: var(--accent); }
-  .meta-chip.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .meta-chip:hover { color: var(--accent); transform: translateY(-1px); }
+  .meta-chip.active { color: var(--accent); }
   .meta-chip svg { width: 11px; height: 11px; flex-shrink: 0; }
   .capture-save {
-    margin-left: auto;
-    background: var(--accent);
-    color: white;
+    margin-left: 6px;
+    background: transparent;
+    color: var(--accent);
     border: 0;
-    padding: 6px 16px;
-    border-radius: 999px;
+    padding: 6px 8px;
     font-size: 11px;
     cursor: pointer;
     letter-spacing: 0.5px;
-    transition: opacity 0.2s, transform 0.2s;
+    transition: opacity 0.2s, transform 0.2s, color 0.2s;
+    font-family: var(--sans);
+    font-weight: 500;
   }
-  .capture-save:disabled { opacity: 0.35; cursor: default; }
-  .capture-save:not(:disabled):hover { transform: translateY(-1px); }
+  .capture-save:disabled { opacity: 0.35; cursor: default; color: var(--ink-faint); }
+  .capture-save:not(:disabled):hover { transform: translateY(-1px); color: var(--ink); }
+  body.dark .capture-save { color: #d8c4f8; }
+  body.dark .capture-save:not(:disabled):hover { color: #f0eaff; }
+  body.dark .capture-save:disabled { color: rgba(220,200,240,0.35); }
   .capture-extras {
     overflow: hidden;
     max-height: 0;
@@ -346,16 +365,19 @@
   }
   .extras-row input[type="text"] {
     flex: 1;
-    background: rgba(255,255,255,0.6);
-    border: 1px solid var(--line);
-    padding: 7px 12px;
-    border-radius: 10px;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid rgba(180, 150, 220, 0.2);
+    padding: 6px 4px;
     font-size: 13px;
     outline: 0;
     color: var(--ink);
     font-family: var(--sans);
+    text-align: center;
   }
-  .extras-row input[type="text"]:focus { border-color: var(--accent); background: rgba(255,255,255,0.85); }
+  .extras-row input[type="text"]:focus { border-bottom-color: var(--accent); }
+  body.dark .extras-row input[type="text"] { color: #f0eaff; border-bottom-color: rgba(220,200,240,0.25); }
+  body.dark .extras-row input[type="text"]:focus { border-bottom-color: #c8a8f0; }
   .photo-preview-wrap {
     margin-top: 8px; position: relative;
     display: none;
@@ -427,14 +449,15 @@
     flex-wrap: wrap;
   }
   .panel-actions button {
-    background: transparent; border: 1px solid var(--line);
+    background: transparent; border: 0;
     color: var(--ink-soft); font-size: 11px;
-    padding: 5px 12px; border-radius: 999px; cursor: pointer;
+    padding: 6px 8px; cursor: pointer;
     letter-spacing: 0.3px;
     font-family: var(--sans);
+    transition: color 0.15s;
   }
-  .panel-actions button:hover { border-color: var(--accent); color: var(--accent); }
-  .panel-actions button.danger:hover { border-color: var(--rose); color: var(--rose); }
+  .panel-actions button:hover { color: var(--accent); }
+  .panel-actions button.danger:hover { color: var(--rose); }
   .related-section {
     margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line);
   }
@@ -498,6 +521,212 @@
   .patterns-empty {
     color: var(--ink-faint); font-style: italic; font-family: var(--serif);
     font-size: 14px; line-height: 1.6;
+  }
+
+  /* themes menu — clean vertical strip on the right */
+  .themes-menu {
+    position: fixed;
+    right: 28px; top: 50%;
+    transform: translateY(-50%);
+    display: none;
+    flex-direction: column;
+    gap: 14px;
+    z-index: 28;
+    background: transparent;
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    max-height: none;
+    overflow: visible;
+    align-items: flex-end;
+  }
+  .themes-menu.open { display: flex; }
+  body.ambient .themes-menu { display: none !important; }
+
+  .themes-list { display: flex; flex-direction: column; gap: 12px; align-items: flex-end; }
+  .theme-item {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: color 0.2s, transform 0.15s;
+    letter-spacing: 0.3px;
+  }
+  .theme-item:hover { color: var(--accent); transform: translateX(-2px); }
+  .theme-item.active { color: var(--ink); }
+  .theme-item-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  body.dark .theme-item { color: rgba(220, 200, 240, 0.7); }
+  body.dark .theme-item:hover { color: #f0eaff; }
+  body.dark .theme-item.active { color: #f0eaff; }
+
+  /* customize sub-panel — under the theme list */
+  .custom-controls {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(180, 150, 220, 0.15);
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
+  .custom-title {
+    font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--ink-faint); font-family: var(--sans);
+    text-align: right;
+  }
+  body.dark .custom-title { color: rgba(220,200,240,0.55); }
+  .hue-row { display: flex; align-items: center; gap: 10px; }
+  .hue-row .hue-label {
+    width: 12px; height: 12px; border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .hue-row input[type="range"] {
+    flex: 1; height: 3px;
+    background: linear-gradient(to right,
+      hsl(0,80%,60%), hsl(60,80%,60%), hsl(120,80%,60%),
+      hsl(180,80%,60%), hsl(240,80%,60%), hsl(300,80%,60%), hsl(360,80%,60%));
+    border-radius: 999px; outline: 0; appearance: none; -webkit-appearance: none;
+    cursor: pointer;
+  }
+  .hue-row input[type="range"]::-webkit-slider-thumb {
+    appearance: none; -webkit-appearance: none;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: white; cursor: pointer; border: 0;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.2);
+  }
+  .hue-row input[type="range"]::-moz-range-thumb {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: white; cursor: pointer; border: 0;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.2);
+  }
+  body.dark .hue-row input[type="range"]::-webkit-slider-thumb,
+  body.dark .hue-row input[type="range"]::-moz-range-thumb {
+    background: #f0eaff; box-shadow: 0 0 0 1px rgba(0,0,0,0.4);
+  }
+
+  /* constellation cycling toggle bar — centered horizontally near the bottom */
+  .constellation-toggle {
+    position: fixed;
+    bottom: 110px; left: 50%;
+    transform: translateX(-50%) translateY(12px);
+    display: none;
+    align-items: center;
+    gap: 18px;
+    padding: 10px 18px;
+    z-index: 28;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  .constellation-toggle.open {
+    display: flex;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .ct-arrow {
+    background: transparent;
+    border: 0;
+    color: var(--ink);
+    font-size: 28px;
+    line-height: 1;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: color 0.2s, transform 0.15s;
+    font-family: var(--sans);
+  }
+  .ct-arrow:hover { color: var(--accent); transform: scale(1.15); }
+  .ct-label { text-align: center; min-width: 160px; pointer-events: none; }
+  .ct-name {
+    font-family: var(--serif);
+    font-size: 17px;
+    font-style: italic;
+    color: var(--ink);
+    letter-spacing: 0.3px;
+  }
+  .ct-shell {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-top: 3px;
+    font-family: var(--sans);
+  }
+  .ct-close {
+    background: transparent; border: 0;
+    color: var(--ink-faint);
+    font-size: 18px; cursor: pointer;
+    line-height: 1; padding: 4px 6px;
+    margin-left: 6px;
+  }
+  .ct-close:hover { color: var(--accent); }
+  body.dark .ct-arrow { color: #f0eaff; }
+  body.dark .ct-name { color: #f0eaff; }
+  body.dark .ct-shell { color: #b8a4d0; }
+  body.dark .ct-close { color: #b8a4d0; }
+  body.ambient .constellation-toggle { display: none !important; }
+
+  /* theme toggle slightly bigger to match icon glyph weight */
+  .actions #btn-theme {
+    font-size: 14px;
+    padding: 4px 10px;
+  }
+
+  /* Memory text floating in the orb when a star is clicked */
+  .memory-display {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(440px, 70vw);
+    text-align: center;
+    pointer-events: none;
+    color: rgba(255, 255, 255, 0.95);
+    font-family: var(--serif);
+    font-size: 18px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 12;
+  }
+  .memory-display.show { opacity: 1; }
+  .memory-display .when {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 12px;
+    font-family: var(--sans);
+  }
+  .memory-display .memory-body {
+    color: rgba(255, 255, 255, 0.95);
+  }
+  .memory-display .meta {
+    display: block;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 14px;
+    font-family: var(--sans);
+    letter-spacing: 0.4px;
+  }
+  .memory-display .memory-photo {
+    display: block;
+    max-width: 100%;
+    max-height: 240px;
+    margin: 0 auto 14px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px -8px rgba(0,0,0,0.5);
   }
 
   /* browse overlay */
@@ -574,6 +803,111 @@
     font-family: var(--serif);
   }
 
+  /* size sliders — bottom-left corner, stacked */
+  .size-controls {
+    position: fixed;
+    left: 22px;
+    bottom: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 22;
+    opacity: 0.85;
+    transition: opacity 0.3s;
+    user-select: none;
+  }
+  .size-controls:hover { opacity: 1; }
+  body.ambient .size-controls { display: none; }
+  .size-slider {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+  }
+  .size-slider:hover { opacity: 1; }
+  .size-slider .label {
+    font-size: 10px;
+    color: var(--ink-soft);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: var(--sans);
+  }
+  .size-slider input[type="range"] {
+    -webkit-appearance: none; appearance: none;
+    width: 110px; height: 4px;
+    background: rgba(150, 120, 180, 0.35);
+    border-radius: 999px;
+    outline: 0;
+    cursor: pointer;
+  }
+  .size-slider input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px 2px rgba(138, 106, 176, 0.4), 0 1px 4px rgba(80,60,100,0.3);
+    cursor: pointer; border: 0;
+  }
+  .size-slider input[type="range"]::-moz-range-thumb {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px 2px rgba(138, 106, 176, 0.4), 0 1px 4px rgba(80,60,100,0.3);
+    cursor: pointer; border: 0;
+  }
+  body.dark .size-slider .label { color: #b8a4d0; }
+  body.dark .size-slider input[type="range"] {
+    background: rgba(180, 150, 220, 0.3);
+  }
+  body.dark .size-slider input[type="range"]::-webkit-slider-thumb,
+  body.dark .size-slider input[type="range"]::-moz-range-thumb {
+    background: #c8a8f0;
+    box-shadow: 0 0 10px 2px rgba(220, 200, 240, 0.5);
+  }
+  body.ambient .size-slider { display: none; }
+
+  /* ambient mode — hide all UI, just the orb */
+  body.ambient header,
+  body.ambient .capture,
+  body.ambient .hint,
+  body.ambient .panel,
+  body.ambient .patterns,
+  body.ambient .overlay,
+  body.ambient .size-slider,
+  body.ambient .constellation-toggle,
+  body.ambient .toast {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transition: opacity 0.6s ease;
+  }
+  body.ambient header *,
+  body.ambient .capture *,
+  body.ambient .panel *,
+  body.ambient .patterns *,
+  body.ambient .size-slider *,
+  body.ambient .constellation-toggle * {
+    pointer-events: none !important;
+  }
+  .ambient-exit {
+    position: fixed;
+    top: 22px; right: 22px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: rgba(140, 100, 170, 0.55);
+    box-shadow: 0 0 8px 2px rgba(180, 140, 220, 0.35);
+    border: 0;
+    cursor: pointer;
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease, transform 0.2s ease;
+  }
+  .ambient-exit:hover { transform: scale(1.2); }
+  body.ambient .ambient-exit { pointer-events: auto; }
+  body.ambient.show-exit .ambient-exit { opacity: 0.7; }
+  body.dark .ambient-exit { background: rgba(220, 200, 240, 0.45); box-shadow: 0 0 8px 2px rgba(220, 200, 240, 0.3); }
+
   /* toast */
   .toast {
     position: fixed; bottom: 110px; left: 50%;
@@ -600,8 +934,10 @@
 <header>
   <div class="brand">memory orb<span class="count" id="count">·</span></div>
   <div class="actions">
-    <button id="btn-theme" title="toggle dark mode">☾</button>
+    <button id="btn-themes">themes</button>
+    <button id="btn-ambient" title="ambient mode (hide UI)">ambient</button>
     <button id="btn-patterns">find patterns</button>
+    <button id="btn-constellations">constellations</button>
     <button id="btn-browse">browse</button>
     <button id="btn-export">export</button>
     <button id="btn-import">import</button>
@@ -660,6 +996,29 @@
   <div id="patterns-content"></div>
 </aside>
 
+<!-- Themes menu (right-side vertical strip) -->
+<aside class="themes-menu" id="themes-panel">
+  <div id="themes-grid" class="themes-list"></div>
+  <div id="custom-controls" class="custom-controls" style="display:none;">
+    <div class="custom-title">customize</div>
+    <div id="custom-sliders"></div>
+  </div>
+</aside>
+
+<!-- Constellation cycling toggle -->
+<div class="constellation-toggle" id="constellation-toggle">
+  <button class="ct-arrow" id="ct-prev" title="previous constellation">‹</button>
+  <div class="ct-label">
+    <div class="ct-name" id="ct-name">Big Dipper</div>
+    <div class="ct-shell" id="ct-shell">outer</div>
+  </div>
+  <button class="ct-arrow" id="ct-next" title="next constellation">›</button>
+  <button class="ct-close" id="ct-close" title="exit constellations">&times;</button>
+</div>
+
+<!-- Memory text overlay (centered in orb) -->
+<div class="memory-display" id="memory-display"></div>
+
 <!-- Browse overlay -->
 <div class="overlay" id="overlay">
   <div class="library">
@@ -671,6 +1030,19 @@
     <div class="library-list" id="library-list"></div>
   </div>
 </div>
+
+<div class="size-controls">
+  <div class="size-slider" title="adjust halo radius">
+    <div class="label">halo</div>
+    <input type="range" id="halo-input" min="0.6" max="2.0" step="0.02" value="1" />
+  </div>
+  <div class="size-slider" title="adjust aura size">
+    <div class="label">aura</div>
+    <input type="range" id="aura-input" min="0.4" max="1.6" step="0.02" value="1" />
+  </div>
+</div>
+
+<button class="ambient-exit" id="ambient-exit" title="exit ambient mode"></button>
 
 <div class="toast" id="toast"></div>
 
@@ -694,6 +1066,15 @@
   function savePositions() { localStorage.setItem(POS_KEY, JSON.stringify(positions)); }
   function loadSeen() { return safeParse(localStorage.getItem(SEEN_KEY), {}); }
   function saveSeen() { localStorage.setItem(SEEN_KEY, JSON.stringify(seen)); }
+
+  // One-time clear of all saved memories (runs once per browser, then never again)
+  const CLEAR_FLAG = "memory-orb.cleared.20260506-1";
+  if (!localStorage.getItem(CLEAR_FLAG)) {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(POS_KEY);
+    localStorage.removeItem(SEEN_KEY);
+    localStorage.setItem(CLEAR_FLAG, "1");
+  }
 
   let entries = load();
   let positions = loadPositions();
@@ -736,10 +1117,11 @@
     return p;
   }
 
-  // Camera
-  const cam = { yaw: 0.3, pitch: -0.2, distance: 3.6 };
-  let momentum = { yaw: 0.0008, pitch: 0 };
+  // Camera — starts zoomed out, intro animates in while spinning
+  const cam = { yaw: 0.3, pitch: -0.2, distance: 9.5 };
+  let momentum = { yaw: 0.012, pitch: 0 };
   let camAnim = null;
+  let intro = { startTime: performance.now(), duration: 5500, fromD: 9.5, toD: 1.85, done: false };
 
   function spinToFace(p, duration) {
     duration = duration || 800;
@@ -844,20 +1226,20 @@
   let hoverId = null;
   let projectedCache = [];
 
-  // 4-pointed sparkle — soft stretched glows, no hard edges anywhere
+  // 4-pointed sparkle — soft hue-tinted glows, less white overall
   function drawSparkle(x, y, size, hue, opacity, full) {
     const rayLen = size * (full ? 2.6 : 1.8);
     const rayWidth = size * 0.55;
     ctx.save();
     ctx.translate(x, y);
 
-    // Vertical ray — stretched radial gradient (fades softly in all directions)
+    // Vertical ray — hue-tinted radial gradient
     ctx.save();
     ctx.scale(1, rayLen / rayWidth);
     const vg = ctx.createRadialGradient(0, 0, 0, 0, 0, rayWidth);
-    vg.addColorStop(0,   `rgba(255, 255, 255, ${opacity * 0.85})`);
-    vg.addColorStop(0.4, `hsla(${hue}, 90%, 92%, ${opacity * 0.35})`);
-    vg.addColorStop(1,   `hsla(${hue}, 90%, 88%, 0)`);
+    vg.addColorStop(0,   `hsla(${hue}, 75%, 90%, ${opacity * 0.55})`);
+    vg.addColorStop(0.4, `hsla(${hue}, 85%, 86%, ${opacity * 0.22})`);
+    vg.addColorStop(1,   `hsla(${hue}, 85%, 84%, 0)`);
     ctx.fillStyle = vg;
     ctx.beginPath(); ctx.arc(0, 0, rayWidth, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
@@ -866,9 +1248,9 @@
     ctx.save();
     ctx.scale(rayLen / rayWidth, 1);
     const hg = ctx.createRadialGradient(0, 0, 0, 0, 0, rayWidth);
-    hg.addColorStop(0,   `rgba(255, 255, 255, ${opacity * 0.85})`);
-    hg.addColorStop(0.4, `hsla(${hue}, 90%, 92%, ${opacity * 0.35})`);
-    hg.addColorStop(1,   `hsla(${hue}, 90%, 88%, 0)`);
+    hg.addColorStop(0,   `hsla(${hue}, 75%, 90%, ${opacity * 0.55})`);
+    hg.addColorStop(0.4, `hsla(${hue}, 85%, 86%, ${opacity * 0.22})`);
+    hg.addColorStop(1,   `hsla(${hue}, 85%, 84%, 0)`);
     ctx.fillStyle = hg;
     ctx.beginPath(); ctx.arc(0, 0, rayWidth, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
@@ -876,33 +1258,35 @@
     // Soft colored aura under everything
     if (full) {
       const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 2.4);
-      glow.addColorStop(0, `hsla(${hue}, 90%, 92%, ${opacity * 0.5})`);
-      glow.addColorStop(1, `hsla(${hue}, 90%, 88%, 0)`);
+      glow.addColorStop(0, `hsla(${hue}, 90%, 88%, ${opacity * 0.4})`);
+      glow.addColorStop(1, `hsla(${hue}, 90%, 84%, 0)`);
       ctx.fillStyle = glow;
       ctx.beginPath(); ctx.arc(0, 0, size * 2.4, 0, Math.PI * 2); ctx.fill();
     }
 
-    // Soft white core — radial gradient, no hard edge
+    // Hue-tinted core — barely white, mostly the star's own color
     const core = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 1.2);
-    core.addColorStop(0,   `rgba(255, 255, 255, ${opacity})`);
-    core.addColorStop(0.4, `rgba(255, 255, 255, ${opacity * 0.65})`);
-    core.addColorStop(0.7, `rgba(255, 255, 255, ${opacity * 0.25})`);
-    core.addColorStop(1,   `rgba(255, 255, 255, 0)`);
+    core.addColorStop(0,   `hsla(${hue}, 60%, 95%, ${opacity * 0.7})`);
+    core.addColorStop(0.4, `hsla(${hue}, 70%, 90%, ${opacity * 0.4})`);
+    core.addColorStop(0.7, `hsla(${hue}, 75%, 86%, ${opacity * 0.15})`);
+    core.addColorStop(1,   `hsla(${hue}, 75%, 84%, 0)`);
     ctx.fillStyle = core;
     ctx.beginPath(); ctx.arc(0, 0, size * 1.2, 0, Math.PI * 2); ctx.fill();
 
     ctx.restore();
   }
 
-  // Color attractors — a few colored "clouds" that bleed into each other organically.
-  // Hue at any 3D point is a distance-weighted circular mean of these attractors.
+  // Color attractors — warm rose/pink dominant, cool tones as occasional accents.
+  // Multiple warm attractors with high weights cluster the orb in pink/peach/rose,
+  // while cyan/gold/lavender appear as smaller pockets.
   const ATTRACTORS = [
-    { x:  0.55, y:  0.25, z:  0.35, hue: 348, w: 1.3 },  // rose
-    { x: -0.30, y: -0.55, z:  0.55, hue:  28, w: 1.0 },  // peach
-    { x:  0.10, y: -0.10, z: -0.75, hue: 192, w: 1.1 },  // cyan
-    { x: -0.60, y:  0.30, z: -0.25, hue: 282, w: 0.9 },  // lavender
-    { x:  0.35, y: -0.50, z: -0.30, hue:  48, w: 0.8 },  // gold
-    { x: -0.10, y:  0.65, z:  0.20, hue: 318, w: 0.9 }   // pink
+    { x:  0.55, y:  0.25, z:  0.35, hue: 348, w: 1.8 },  // rose (dominant)
+    { x: -0.20, y:  0.55, z:  0.40, hue: 332, w: 1.6 },  // pink (dominant)
+    { x:  0.30, y: -0.40, z:  0.55, hue:   8, w: 1.4 },  // warm rose
+    { x: -0.55, y: -0.30, z: -0.20, hue:  28, w: 1.2 },  // peach (medium)
+    { x:  0.10, y:  0.10, z: -0.75, hue: 195, w: 0.55 }, // cyan (accent)
+    { x: -0.40, y:  0.45, z: -0.40, hue: 280, w: 0.50 }, // lavender (accent)
+    { x:  0.40, y: -0.55, z: -0.20, hue:  46, w: 0.45 }  // gold (accent)
   ];
 
   // Hue from a 3D point — circular mean of attractors weighted by 1/d^4 for blob falloff
@@ -942,51 +1326,168 @@
     };
   }
 
-  // Ambient stardust inside the orb volume — exists whether or not memories do
+  // Real constellation patterns — 2D star coords + edge lists
+  const CONSTELLATION_PATTERNS = [
+    { name: "Big Dipper",
+      stars: [[0,0],[0.75,0.15],[0.85,-0.45],[0.10,-0.50],[-0.65,0.30],[-1.20,0.50],[-1.65,0.35]],
+      edges: [[0,1],[1,2],[2,3],[3,0],[0,4],[4,5],[5,6]] },
+    { name: "Orion",
+      stars: [[-0.6,0.8],[0.6,0.7],[-0.3,0.05],[0,0],[0.3,-0.05],[-0.7,-0.7],[0.7,-0.8],[0,-0.4]],
+      edges: [[0,2],[0,1],[1,4],[2,3],[3,4],[2,5],[4,6],[5,6],[3,7]] },
+    { name: "Cassiopeia",
+      stars: [[-1,0],[-0.5,0.55],[0,0.05],[0.5,0.6],[1,-0.05]],
+      edges: [[0,1],[1,2],[2,3],[3,4]] },
+    { name: "Cygnus",
+      stars: [[0,0.95],[0,0],[0,-0.95],[-0.85,0.15],[0.85,0.20]],
+      edges: [[0,1],[1,2],[3,1],[1,4]] },
+    { name: "Lyra",
+      stars: [[0,0.6],[-0.4,0],[0.4,0],[-0.4,-0.5],[0.4,-0.5]],
+      edges: [[0,1],[0,2],[1,3],[2,4],[3,4]] },
+    { name: "Crux",
+      stars: [[0,0.65],[0,-0.7],[-0.55,0.05],[0.5,-0.05]],
+      edges: [[0,1],[2,3]] },
+    { name: "Pegasus",
+      stars: [[-0.55,0.55],[0.55,0.5],[0.5,-0.55],[-0.5,-0.5]],
+      edges: [[0,1],[1,2],[2,3],[3,0]] },
+    { name: "Scorpius",
+      stars: [[-1.0,0.55],[-0.6,0.4],[-0.3,0.2],[0,-0.05],[0.3,-0.35],[0.6,-0.55],[0.9,-0.55],[1.05,-0.25]],
+      edges: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7]] },
+    { name: "Leo",
+      stars: [[-0.55,0.7],[-0.3,0.4],[-0.1,0.55],[0.1,0.3],[0.6,0.0],[0.85,-0.4]],
+      edges: [[0,1],[1,2],[2,3],[3,4],[4,5]] },
+    { name: "Aquila",
+      stars: [[0,0.8],[0,0],[0,-0.8],[-0.6,0.15],[0.6,0.20]],
+      edges: [[0,1],[1,2],[3,1],[1,4]] },
+    { name: "Ursa Minor",
+      stars: [[0,0],[0.5,0.1],[0.55,-0.3],[0.05,-0.35],[-0.45,0.2],[-0.85,0.3],[-1.15,0.15]],
+      edges: [[0,1],[1,2],[2,3],[3,0],[0,4],[4,5],[5,6]] },
+    { name: "Sagittarius",
+      stars: [[-0.55,0.3],[-0.55,-0.3],[-0.25,0.5],[0.3,0.5],[0.5,0.15],[0.3,-0.35],[-0.25,-0.5]],
+      edges: [[0,1],[0,2],[2,3],[3,4],[4,5],[5,6],[6,1]] },
+    { name: "Bootes",
+      stars: [[0,0.85],[-0.35,0.4],[0.35,0.4],[-0.5,-0.1],[0.5,-0.1],[0,-0.7]],
+      edges: [[0,1],[0,2],[1,3],[2,4],[3,5],[4,5]] },
+    { name: "Gemini",
+      stars: [[-0.5,0.6],[0.5,0.65],[-0.5,0.0],[0.5,0.05],[-0.5,-0.6],[0.5,-0.55]],
+      edges: [[0,2],[2,4],[1,3],[3,5],[0,1]] }
+  ];
+
+  // Place a 2D constellation pattern onto a sphere of given radius (default 1.0)
+  function placeConstellation(pattern, lon, lat, rot, scale, radius) {
+    radius = radius == null ? 1.0 : radius;
+    const cosLat = Math.cos(lat), sinLat = Math.sin(lat);
+    const cosLon = Math.cos(lon), sinLon = Math.sin(lon);
+    const ccx = cosLat * cosLon, ccy = sinLat, ccz = cosLat * sinLon;
+    const ex = -sinLon, ey = 0, ez = cosLon;
+    const nx = -sinLat * cosLon, ny = cosLat, nz = -sinLat * sinLon;
+    const cosR = Math.cos(rot), sinR = Math.sin(rot);
+    return pattern.stars.map(([px, py]) => {
+      const rx = px * cosR - py * sinR;
+      const ry = px * sinR + py * cosR;
+      const tx = rx * scale, ty = ry * scale;
+      let x = ccx + tx * ex + ty * nx;
+      let y = ccy + tx * ey + ty * ny;
+      let z = ccz + tx * ez + ty * nz;
+      const len = Math.sqrt(x*x + y*y + z*z) || 1;
+      return { x: (x/len) * radius, y: (y/len) * radius, z: (z/len) * radius };
+    });
+  }
+
+  // Build the sky: place real constellations across multiple shells (depth!) + scattered field stars
   const stardust = [];
-  (function makeStardust() {
-    const N = 170;
-    let i = 0;
-    while (stardust.length < N && i < 2000) {
+  const stardustEdges = [];
+  // Track each placement so the user can browse them
+  // Each entry: { name, shell, starIndices, edgeIndices }
+  const placedConstellations = [];
+  (function buildSky() {
+    function placePattern(pattern, radius, scaleMin, scaleMax, brightness, shell) {
+      const lon = Math.random() * Math.PI * 2;
+      const lat = (Math.random() - 0.5) * Math.PI * 0.92;
+      const rot = Math.random() * Math.PI * 2;
+      const scale = scaleMin + Math.random() * (scaleMax - scaleMin);
+      const placed = placeConstellation(pattern, lon, lat, rot, scale, radius);
+      const starStart = stardust.length;
+      const edgeStart = stardustEdges.length;
+      for (const pos of placed) {
+        const c = colorAt(pos);
+        stardust.push({
+          x: pos.x, y: pos.y, z: pos.z,
+          b: brightness * (0.85 + Math.random() * 0.3),
+          ph: Math.random() * Math.PI * 2,
+          hue: c.hue, sat: c.sat, light: c.light,
+          named: true
+        });
+      }
+      for (const [i, j] of pattern.edges) {
+        stardustEdges.push([starStart + i, starStart + j]);
+      }
+      placedConstellations.push({
+        name: pattern.name,
+        shell,
+        starIndices: placed.map((_, i) => starStart + i),
+        edgeIndices: pattern.edges.map((_, i) => edgeStart + i),
+        radius
+      });
+    }
+
+    // Outer shell — every canonical constellation (radius ~1.0)
+    for (const pattern of CONSTELLATION_PATTERNS) {
+      placePattern(pattern, 0.95 + Math.random() * 0.10, 0.18, 0.28, 0.85, "outer");
+    }
+
+    // Mid shell — 10 randomly chosen constellations at radius ~0.65-0.80
+    for (let i = 0; i < 10; i++) {
+      const pattern = CONSTELLATION_PATTERNS[Math.floor(Math.random() * CONSTELLATION_PATTERNS.length)];
+      placePattern(pattern, 0.65 + Math.random() * 0.15, 0.14, 0.22, 0.7, "mid");
+    }
+
+    // Inner shell — 6 smaller constellations at radius ~0.40-0.55, deep inside the orb
+    for (let i = 0; i < 6; i++) {
+      const pattern = CONSTELLATION_PATTERNS[Math.floor(Math.random() * CONSTELLATION_PATTERNS.length)];
+      placePattern(pattern, 0.40 + Math.random() * 0.15, 0.10, 0.18, 0.55, "inner");
+    }
+
+    // Field stars throughout the volume (more sparse near center)
+    let attempts = 0;
+    while (stardust.length < 280 && attempts < 3000) {
+      attempts++;
       const x = Math.random() * 2 - 1;
       const y = Math.random() * 2 - 1;
       const z = Math.random() * 2 - 1;
-      i++;
       const r2 = x*x + y*y + z*z;
       if (r2 > 1 || r2 < 0.04) continue;
       const c = colorAt({ x, y, z });
       stardust.push({
         x, y, z,
-        b: 0.3 + Math.random() * 0.7,
+        b: 0.25 + Math.random() * 0.55,
         ph: Math.random() * Math.PI * 2,
-        hue: c.hue, sat: c.sat, light: c.light
+        hue: c.hue, sat: c.sat, light: c.light,
+        named: false
       });
     }
   })();
 
-  // Stardust constellation threads — precomputed nearest-neighbor pairs
-  const stardustEdges = [];
-  (function makeStardustEdges() {
-    for (let i = 0; i < stardust.length; i++) {
-      const a = stardust[i];
-      let n1 = -1, n2 = -1, d1 = Infinity, d2 = Infinity;
-      for (let j = 0; j < stardust.length; j++) {
-        if (j === i) continue;
-        const b = stardust[j];
-        const dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z;
-        const d = dx*dx + dy*dy + dz*dz;
-        if (d < d1) { d2 = d1; n2 = n1; d1 = d; n1 = j; }
-        else if (d < d2) { d2 = d; n2 = j; }
-      }
-      if (n1 > i) stardustEdges.push([i, n1]);
-      if (n2 > i) stardustEdges.push([i, n2]);
-    }
-  })();
+  // (constellation edges are built above directly from real patterns)
 
   function render() {
     ctx.clearRect(0, 0, vw, vh);
 
-    if (camAnim) {
+    if (intro && !intro.done) {
+      const t = Math.min(1, (performance.now() - intro.startTime) / intro.duration);
+      // ease out cubic for distance
+      const eased = 1 - Math.pow(1 - t, 3);
+      cam.distance = intro.fromD - eased * (intro.fromD - intro.toD);
+      // Spin both axes — yaw is continuous, pitch oscillates gently then settles
+      const slowdown = 1 - eased * 0.6;
+      cam.yaw += 0.012 * slowdown;
+      cam.pitch += 0.005 * Math.cos(t * Math.PI * 2.5) * slowdown;
+      if (t >= 1) {
+        intro.done = true;
+        cam.distance = intro.toD;
+        cam.pitch = -0.2;
+        momentum.yaw = 0.003;
+      }
+    } else if (camAnim) {
       const elapsed = performance.now() - camAnim.startTime;
       const t = Math.min(1, elapsed / camAnim.duration);
       // ease out cubic
@@ -1001,8 +1502,9 @@
       cam.pitch += momentum.pitch;
       momentum.yaw *= 0.96;
       momentum.pitch *= 0.96;
-      // bias toward gentle auto-rotate
-      momentum.yaw += (0.0008 - momentum.yaw) * 0.02;
+      // bias toward gentle auto-rotate; slightly faster when ambient mode is on
+      const targetYaw = ambientMode ? 0.0030 : 0.0016;
+      momentum.yaw += (targetYaw - momentum.yaw) * 0.02;
     }
     // Wrap angles so scroll can rotate forever in any direction
     const TAU = Math.PI * 2;
@@ -1018,62 +1520,86 @@
 
     // sphere center
     const cx = vw / 2, cy = vh / 2;
-    const sphereR = Math.min(vw, vh) * 0.38;
+    // baseR is the reference unit. The two sliders independently scale
+    //   sphereR — the inner sphere body (cyan ring, core, blob clip, specular)
+    //   haloOuterR — the pink halo extent
+    const baseR = Math.min(vw, vh) * 0.24;
+    const sphereR = baseR * orbRadiusFactor;
+    const haloOuterR = baseR * 1.22 * haloRadiusFactor;
 
     // Very subtle ambient drift — barely-there, not the main color source.
     const drift = Math.sin(cam.yaw * 0.5) * 8 + Math.sin(cam.pitch * 0.5) * 4;
     document.documentElement.style.setProperty("--aura-hue", drift.toFixed(1) + "deg");
 
+    // Aura follows the camera: rotates with yaw, drifts with pitch.
+    if (auraEl) {
+      const auraRot = (cam.yaw * 60) % 360;          // gradient sweep
+      const auraTx = Math.sin(cam.yaw * 0.6) * 4;     // tiny horizontal drift (vmin)
+      const auraTy = Math.sin(cam.pitch) * 6;         // tiny vertical drift (vmin)
+      auraEl.style.transform =
+        `translate(calc(-50% + ${auraTx.toFixed(2)}vmin), calc(-50% + ${auraTy.toFixed(2)}vmin)) rotate(${auraRot.toFixed(2)}deg)`;
+    }
+
     // === CONCENTRIC STRUCTURE matching the reference photo ===
 
-    // 1. Outer pink halo — thinner band, soft fade out
+    // 1. Halo — color follows the current theme's primary attractor hue
     const haloAlpha = isDark ? 0.32 : 0.46;
-    const wideHalo = ctx.createRadialGradient(cx, cy, sphereR * 0.7, cx, cy, sphereR * 1.6);
-    wideHalo.addColorStop(0,    "rgba(255, 220, 230, 0)");
-    wideHalo.addColorStop(0.40, `hsla(${344 + drift}, 75%, 78%, ${haloAlpha * 0.4})`);
-    wideHalo.addColorStop(0.55, `hsla(${344 + drift}, 80%, 76%, ${haloAlpha * 0.85})`);
-    wideHalo.addColorStop(0.65, `hsla(${344 + drift}, 80%, 76%, ${haloAlpha})`);
-    wideHalo.addColorStop(0.80, `hsla(${334 + drift}, 75%, 78%, ${haloAlpha * 0.4})`);
-    wideHalo.addColorStop(1,    `hsla(${330 + drift}, 70%, 80%, 0)`);
+    const haloR = haloOuterR;
+    const haloHue = ATTRACTORS[0] ? ATTRACTORS[0].hue : 344;
+    const haloHue2 = ATTRACTORS[1] ? ATTRACTORS[1].hue : 334;
+    const zoomFactor = Math.max(1.0, 3.6 / cam.distance);
+    const innerBoost = Math.min(1.6, 1 + (zoomFactor - 1) * 0.5);
+    const wideHalo = ctx.createRadialGradient(cx, cy, 0, cx, cy, haloR);
+    wideHalo.addColorStop(0,    `hsla(${haloHue + drift}, 70%, 84%, ${haloAlpha * 0.18 * innerBoost})`);
+    wideHalo.addColorStop(0.35, `hsla(${haloHue + drift}, 72%, 82%, ${haloAlpha * 0.30 * innerBoost})`);
+    wideHalo.addColorStop(0.55, `hsla(${haloHue + drift}, 75%, 80%, ${haloAlpha * 0.55 * innerBoost})`);
+    wideHalo.addColorStop(0.72, `hsla(${haloHue + drift}, 78%, 78%, ${haloAlpha * 0.90})`);
+    wideHalo.addColorStop(0.83, `hsla(${haloHue + drift}, 80%, 76%, ${haloAlpha})`);
+    wideHalo.addColorStop(0.93, `hsla(${haloHue2 + drift}, 75%, 78%, ${haloAlpha * 0.5})`);
+    wideHalo.addColorStop(1,    `hsla(${haloHue2 + drift}, 70%, 80%, 0)`);
     ctx.fillStyle = wideHalo;
-    ctx.beginPath(); ctx.arc(cx, cy, sphereR * 1.6, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy, haloR, 0, Math.PI * 2); ctx.fill();
 
-    // 2. Inner cyan/blue ring — the pale aquamarine band around the bright core
+    // 2. Inner cyan/blue ring — barely-there hint of cool color
     const cyanRing = ctx.createRadialGradient(cx, cy, sphereR * 0.08, cx, cy, sphereR * 0.7);
-    cyanRing.addColorStop(0,   "hsla(195, 60%, 95%, 0.05)");
-    cyanRing.addColorStop(0.5, "hsla(195, 70%, 90%, 0.30)");
-    cyanRing.addColorStop(0.85,"hsla(200, 60%, 88%, 0.10)");
-    cyanRing.addColorStop(1,   "hsla(200, 60%, 88%, 0)");
+    cyanRing.addColorStop(0,   "hsla(195, 60%, 80%, 0.01)");
+    cyanRing.addColorStop(0.5, "hsla(195, 70%, 78%, 0.06)");
+    cyanRing.addColorStop(0.85,"hsla(200, 60%, 76%, 0.02)");
+    cyanRing.addColorStop(1,   "hsla(200, 60%, 76%, 0)");
     ctx.fillStyle = cyanRing;
     ctx.beginPath(); ctx.arc(cx, cy, sphereR * 0.7, 0, Math.PI * 2); ctx.fill();
 
-    // 3. Luminous center — bright in light mode, soft in dark mode
-    const c0 = isDark ? 0.32 : 0.85;
-    const c1 = isDark ? 0.16 : 0.45;
-    const c2 = isDark ? 0.05 : 0.12;
-    const brightCore = ctx.createRadialGradient(cx, cy, 0, cx, cy, sphereR * 0.4);
-    brightCore.addColorStop(0,   `rgba(255, ${isDark ? 250 : 255}, 245, ${c0})`);
-    brightCore.addColorStop(0.3, `rgba(255, ${isDark ? 248 : 252}, 245, ${c1})`);
-    brightCore.addColorStop(0.7, `rgba(255, 245, 230, ${c2})`);
-    brightCore.addColorStop(1,   "rgba(255, 245, 230, 0)");
+    // 3. Tiny luminous center — small bright glint, not a wash
+    const c0 = isDark ? 0.06 : 0.28;
+    const c1 = isDark ? 0.03 : 0.12;
+    const c2 = isDark ? 0.01 : 0.03;
+    const brightCore = ctx.createRadialGradient(cx, cy, 0, cx, cy, sphereR * 0.22);
+    brightCore.addColorStop(0,   `rgba(255, ${isDark ? 245 : 255}, 245, ${c0})`);
+    brightCore.addColorStop(0.3, `rgba(255, ${isDark ? 240 : 252}, 240, ${c1})`);
+    brightCore.addColorStop(0.7, `rgba(255, 240, 230, ${c2})`);
+    brightCore.addColorStop(1,   "rgba(255, 240, 230, 0)");
     ctx.fillStyle = brightCore;
-    ctx.beginPath(); ctx.arc(cx, cy, sphereR * 0.4, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy, sphereR * 0.22, 0, Math.PI * 2); ctx.fill();
 
-    // 4. Sphere rim — thin pencil of light at the orb edge
+    // 4. (rim removed — orb edge defined only by the surrounding soft halo)
+    /*
     const rim = ctx.createRadialGradient(cx, cy, sphereR * 0.96, cx, cy, sphereR * 1.02);
     rim.addColorStop(0, "rgba(255, 255, 255, 0)");
     rim.addColorStop(0.5, "rgba(255, 220, 235, 0.30)");
     rim.addColorStop(1, "rgba(255, 200, 220, 0)");
     ctx.fillStyle = rim;
     ctx.beginPath(); ctx.arc(cx, cy, sphereR * 1.02, 0, Math.PI * 2); ctx.fill();
+    */
 
-    // 5. Specular highlight — bright off-center spot makes the orb feel like a 3D sphere
+    // 5. Specular highlight
     const highlight = ctx.createRadialGradient(
       cx - sphereR * 0.4, cy - sphereR * 0.45, 0,
-      cx - sphereR * 0.4, cy - sphereR * 0.45, sphereR * 0.55
+      cx - sphereR * 0.4, cy - sphereR * 0.45, sphereR * 0.45
     );
-    highlight.addColorStop(0,   "rgba(255, 255, 255, 0.55)");
-    highlight.addColorStop(0.4, "rgba(255, 250, 240, 0.18)");
+    const specA0 = isDark ? 0.07 : 0.13;
+    const specA1 = isDark ? 0.025 : 0.05;
+    highlight.addColorStop(0,   `rgba(255, 250, 245, ${specA0})`);
+    highlight.addColorStop(0.4, `rgba(255, 248, 240, ${specA1})`);
     highlight.addColorStop(1,   "rgba(255, 240, 220, 0)");
     ctx.save();
     // clip highlight to inside the sphere
@@ -1098,36 +1624,42 @@
       ctx.restore();
     }
 
-    // Watercolor blobs — soft color clouds at each attractor's projected position.
-    // Clipped to inside the sphere so they don't leak past the rim.
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(cx, cy, sphereR * 0.98, 0, Math.PI * 2);
-    ctx.clip();
+    // Watercolor blobs — no hard clip, the blobs' own radial gradients fade to zero at their edges
+    // so they naturally blend into the surrounding pink halo. Inner blobs are kept reasonably small
+    // so they don't extend far past the sphere.
     for (const a of ATTRACTORS) {
       const pr = project(a, vw, vh);
       const depthN = Math.max(0, Math.min(1, (1.5 - pr.z) / 3));
-      const blobR = sphereR * (0.45 + 0.25 * pr.scale / (Math.min(vw, vh) * 0.42 / cam.distance));
-      const op = (0.18 + depthN * 0.32) * a.w;
+      const blobR = sphereR * (0.42 + 0.24 * pr.scale / (Math.min(vw, vh) * 0.42 / cam.distance));
+      const op = (0.14 + depthN * 0.22) * a.w;
       const grad = ctx.createRadialGradient(pr.x, pr.y, 0, pr.x, pr.y, blobR);
-      grad.addColorStop(0,    `hsla(${a.hue}, 75%, 82%, ${op})`);
-      grad.addColorStop(0.5,  `hsla(${a.hue}, 65%, 86%, ${op * 0.45})`);
-      grad.addColorStop(1,    `hsla(${a.hue}, 65%, 86%, 0)`);
+      grad.addColorStop(0,    `hsla(${a.hue}, 80%, 80%, ${op})`);
+      grad.addColorStop(0.5,  `hsla(${a.hue}, 70%, 84%, ${op * 0.4})`);
+      grad.addColorStop(1,    `hsla(${a.hue}, 70%, 84%, 0)`);
       ctx.fillStyle = grad;
       ctx.beginPath(); ctx.arc(pr.x, pr.y, blobR, 0, Math.PI * 2); ctx.fill();
     }
-    ctx.restore();
 
-    // Stardust constellation threads — faint web of the underlying network
-    for (const [ai, bi] of stardustEdges) {
+    // Real-constellation edges — connect named stars per the canonical figures
+    ctx.lineCap = "round";
+    const highlightedEdgeSet = highlightedConstellationIdx >= 0
+      ? new Set(placedConstellations[highlightedConstellationIdx].edgeIndices)
+      : null;
+    for (let ei = 0; ei < stardustEdges.length; ei++) {
+      const [ai, bi] = stardustEdges[ei];
       const a = stardust[ai], b = stardust[bi];
       const ap = project(a, vw, vh), bp = project(b, vw, vh);
       const avgZ = (ap.z + bp.z) / 2;
       const depthN = Math.max(0, Math.min(1, (1.5 - avgZ) / 3));
       const avgHue = (a.hue + b.hue) / 2;
-      const op = 0.08 + depthN * 0.22;
-      ctx.strokeStyle = `hsla(${avgHue}, 55%, 70%, ${op})`;
-      ctx.lineWidth = 0.5;
+      const isHighlighted = highlightedEdgeSet && highlightedEdgeSet.has(ei);
+      const baseOp = 0.45 + depthN * 0.50;
+      // Highlighted = brighter & lighter, but same line width (no thick outline)
+      const op = isHighlighted ? Math.min(1.0, baseOp * 1.5) : baseOp;
+      const sat = isHighlighted ? 80 : 55;
+      const light = isHighlighted ? (isDark ? 88 : 70) : (isDark ? 80 : 56);
+      ctx.strokeStyle = `hsla(${avgHue}, ${sat}%, ${light}%, ${op})`;
+      ctx.lineWidth = 0.95;
       ctx.beginPath();
       ctx.moveTo(ap.x, ap.y);
       ctx.lineTo(bp.x, bp.y);
@@ -1136,13 +1668,20 @@
 
     // Stardust — twinkling sparkles, each with its own stable hue
     const t = performance.now() * 0.001;
-    const dustProjected = stardust.map(d => ({ d, pr: project(d, vw, vh) }))
+    const highlightedStarSet = highlightedConstellationIdx >= 0
+      ? new Set(placedConstellations[highlightedConstellationIdx].starIndices)
+      : null;
+    const dustProjected = stardust.map((d, i) => ({ d, pr: project(d, vw, vh), idx: i }))
       .sort((a, b) => b.pr.z - a.pr.z);
-    for (const { d, pr } of dustProjected) {
+    for (const { d, pr, idx } of dustProjected) {
       const depthN = Math.max(0, Math.min(1, (1.5 - pr.z) / 3));
       const tw = 0.4 + 0.6 * Math.sin(t * 1.8 + d.ph);
-      const op = (0.55 + depthN * 0.45) * d.b * (0.5 + 0.5 * tw);
-      const sz = Math.max(0.8, 1.6 * (pr.scale / (Math.min(vw, vh) * 0.42 / cam.distance)));
+      const baseAlpha = d.named ? 0.85 : 0.65;
+      const isHighlighted = highlightedStarSet && highlightedStarSet.has(idx);
+      const lumBoost = isHighlighted ? 1.8 : 1.0;
+      const op = Math.min(1, (baseAlpha + depthN * 0.4) * d.b * (0.55 + 0.45 * tw) * lumBoost);
+      const szMul = isHighlighted ? 2.4 : (d.named ? 1.9 : 1.6);
+      const sz = Math.max(0.9, szMul * (pr.scale / (Math.min(vw, vh) * 0.42 / cam.distance)));
       drawSparkle(pr.x, pr.y, sz, d.hue, op, false);
     }
 
@@ -1213,28 +1752,9 @@
       const sparkleSize = size * (isActive ? 1.4 : isHover ? 1.15 : 1.0);
       drawSparkle(pr.x, pr.y, sparkleSize, nodeHue, opacity, true);
 
-      // Photo-bearing nodes get a subtle gold halo ring (soft gradient)
-      if (entry.photo) {
-        const photoR = size + 3;
-        const photoGrad = ctx.createRadialGradient(pr.x, pr.y, photoR - 3, pr.x, pr.y, photoR + 3);
-        photoGrad.addColorStop(0, `hsla(48, 90%, 80%, 0)`);
-        photoGrad.addColorStop(0.5, `hsla(48, 90%, 80%, ${opacity * 0.7})`);
-        photoGrad.addColorStop(1, `hsla(48, 90%, 80%, 0)`);
-        ctx.fillStyle = photoGrad;
-        ctx.beginPath(); ctx.arc(pr.x, pr.y, photoR + 3, 0, Math.PI * 2); ctx.fill();
-      }
+      // (no extra ring for photo-bearing nodes — kept clean)
 
-      // Active ring — soft glowing halo, no hard edge
-      if (isActive) {
-        const ringR = size + 12;
-        const ringGrad = ctx.createRadialGradient(pr.x, pr.y, ringR - 9, pr.x, pr.y, ringR + 8);
-        ringGrad.addColorStop(0,    `hsla(${nodeHue}, 90%, 85%, 0)`);
-        ringGrad.addColorStop(0.45, `hsla(${nodeHue}, 90%, 88%, ${opacity * 0.55})`);
-        ringGrad.addColorStop(0.6,  `hsla(${nodeHue}, 90%, 85%, ${opacity * 0.35})`);
-        ringGrad.addColorStop(1,    `hsla(${nodeHue}, 90%, 85%, 0)`);
-        ctx.fillStyle = ringGrad;
-        ctx.beginPath(); ctx.arc(pr.x, pr.y, ringR + 8, 0, Math.PI * 2); ctx.fill();
-      }
+      // Active = brighter sparkle only, no extra ring
     }
 
     // === Always-visible anchor sparkles at attractor positions ===
@@ -1270,6 +1790,7 @@
     dragStart = { x: p.x, y: p.y, t: Date.now() };
     canvas.setPointerCapture(e.pointerId);
     camAnim = null;
+    if (intro) intro.done = true;
   });
   canvas.addEventListener("pointermove", (e) => {
     const p = getPt(e);
@@ -1296,7 +1817,12 @@
     const wasDrag = dragStart && (Math.hypot(p.x - dragStart.x, p.y - dragStart.y) > 5);
     if (!wasDrag) {
       const id = pickAt(p.x, p.y);
-      if (id) openMemory(id);
+      if (id) {
+        openMemory(id);
+      } else if (memoryDisplay.classList.contains("show")) {
+        // click empty space → dismiss the floating memory text
+        hideMemoryText();
+      }
     }
     dragging = false;
     dragStart = null;
@@ -1528,8 +2054,28 @@
     saveSeen();
     // Spin the orb so this memory comes to front
     spinToFace(positionFor(entry.id), 750);
-    renderPanel(entry);
-    panel.classList.add("open");
+    showMemoryText(entry);
+  }
+
+  // Floating in-orb memory text (no panel, no background)
+  const memoryDisplay = document.getElementById("memory-display");
+  function showMemoryText(entry) {
+    const parts = [];
+    parts.push('<span class="when">' + escapeHTML(formatDate(entry.ts)) + ' · ' + escapeHTML(timeAgo(entry.ts)) + '</span>');
+    if (entry.photo) {
+      parts.push('<img class="memory-photo" src="' + escapeHTML(entry.photo) + '" alt="" />');
+    }
+    parts.push('<div class="memory-body">' + escapeHTML(entry.text) + '</div>');
+    const meta = [];
+    if (entry.place) meta.push(escapeHTML(entry.place));
+    if (entry.song) meta.push("♪ " + escapeHTML(entry.song.replace(/^https?:\/\//i, "").slice(0, 40)));
+    if (meta.length) parts.push('<span class="meta">' + meta.join(" · ") + '</span>');
+    memoryDisplay.innerHTML = parts.join("");
+    memoryDisplay.classList.add("show");
+  }
+  function hideMemoryText() {
+    memoryDisplay.classList.remove("show");
+    activeId = null;
   }
   function closePanel() { panel.classList.remove("open"); activeId = null; }
 
@@ -1618,6 +2164,55 @@
 
   document.getElementById("btn-patterns").addEventListener("click", openPatterns);
   document.getElementById("patterns-close").addEventListener("click", () => patternsPanel.classList.remove("open"));
+
+  // ========== CONSTELLATION CYCLING TOGGLE ==========
+  const constellationToggle = document.getElementById("constellation-toggle");
+  const ctName = document.getElementById("ct-name");
+  const ctShell = document.getElementById("ct-shell");
+  let highlightedConstellationIdx = -1;
+
+  function travelTo(idx) {
+    if (!placedConstellations.length) return;
+    // Wrap index
+    const n = placedConstellations.length;
+    idx = ((idx % n) + n) % n;
+    highlightedConstellationIdx = idx;
+    const c = placedConstellations[idx];
+    // Centroid
+    let sx = 0, sy = 0, sz = 0;
+    for (const si of c.starIndices) {
+      sx += stardust[si].x; sy += stardust[si].y; sz += stardust[si].z;
+    }
+    const k = c.starIndices.length;
+    spinToFace({ x: sx/k, y: sy/k, z: sz/k }, 900);
+    ctName.textContent = c.name;
+    ctShell.textContent = c.shell + " · " + (idx + 1) + " / " + n;
+  }
+
+  function openConstellationToggle() {
+    constellationToggle.classList.add("open");
+    travelTo(highlightedConstellationIdx >= 0 ? highlightedConstellationIdx : 0);
+  }
+  function closeConstellationToggle() {
+    constellationToggle.classList.remove("open");
+    highlightedConstellationIdx = -1;
+  }
+
+  document.getElementById("btn-constellations").addEventListener("click", () => {
+    if (constellationToggle.classList.contains("open")) closeConstellationToggle();
+    else openConstellationToggle();
+  });
+  document.getElementById("ct-prev").addEventListener("click", () => travelTo(highlightedConstellationIdx - 1));
+  document.getElementById("ct-next").addEventListener("click", () => travelTo(highlightedConstellationIdx + 1));
+  document.getElementById("ct-close").addEventListener("click", closeConstellationToggle);
+
+  // Arrow keys cycle when toggle is open
+  document.addEventListener("keydown", (e) => {
+    if (!constellationToggle.classList.contains("open")) return;
+    if (document.activeElement === capText) return;
+    if (e.key === "ArrowLeft") { e.preventDefault(); travelTo(highlightedConstellationIdx - 1); }
+    if (e.key === "ArrowRight") { e.preventDefault(); travelTo(highlightedConstellationIdx + 1); }
+  });
 
   async function openPatterns() {
     patternsPanel.classList.add("open");
@@ -1813,8 +2408,15 @@
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       if (overlay.classList.contains("open")) overlay.classList.remove("open");
+      else if (constellationToggle.classList.contains("open")) closeConstellationToggle();
       else if (patternsPanel.classList.contains("open")) patternsPanel.classList.remove("open");
+      else if (memoryDisplay.classList.contains("show")) hideMemoryText();
       else if (panel.classList.contains("open")) closePanel();
+      else if (ambientMode) {
+        ambientMode = false;
+        localStorage.setItem(AMBIENT_KEY, "0");
+        applyAmbient();
+      }
     }
     if (e.key === "/" && document.activeElement !== capText && !overlay.classList.contains("open")) {
       e.preventDefault();
@@ -1823,20 +2425,303 @@
   });
 
   // ============================================================
-  // DARK MODE
+  // SIZE SLIDERS (halo + aura) — core is locked at 0.5
   // ============================================================
-  const THEME_KEY = "memory-orb.theme";
-  function applyTheme(isDark) {
-    document.body.classList.toggle("dark", isDark);
-    document.getElementById("btn-theme").textContent = isDark ? "☀" : "☾";
-  }
-  let isDark = localStorage.getItem(THEME_KEY) === "dark";
-  applyTheme(isDark);
-  document.getElementById("btn-theme").addEventListener("click", () => {
-    isDark = !isDark;
-    applyTheme(isDark);
-    localStorage.setItem(THEME_KEY, isDark ? "dark" : "light");
+  const HALO_KEY = "memory-orb.halo";
+  const AURA_KEY = "memory-orb.aura";
+  const orbRadiusFactor = 0.5;
+  let haloRadiusFactor = parseFloat(localStorage.getItem(HALO_KEY));
+  if (!isFinite(haloRadiusFactor)) haloRadiusFactor = 1.0;
+  let auraRadiusFactor = parseFloat(localStorage.getItem(AURA_KEY));
+  if (!isFinite(auraRadiusFactor)) auraRadiusFactor = 1.0;
+
+  const haloInput = document.getElementById("halo-input");
+  haloInput.value = haloRadiusFactor;
+  haloInput.addEventListener("input", () => {
+    haloRadiusFactor = parseFloat(haloInput.value) || 1.0;
+    localStorage.setItem(HALO_KEY, haloRadiusFactor.toString());
   });
+
+  const auraEl = document.querySelector(".aura");
+  const auraInput = document.getElementById("aura-input");
+  function applyAuraSize() {
+    if (auraEl) {
+      const size = (80 * auraRadiusFactor).toFixed(1);
+      auraEl.style.width = size + "vmin";
+      auraEl.style.height = size + "vmin";
+    }
+  }
+  auraInput.value = auraRadiusFactor;
+  auraInput.addEventListener("input", () => {
+    auraRadiusFactor = parseFloat(auraInput.value) || 1.0;
+    localStorage.setItem(AURA_KEY, auraRadiusFactor.toString());
+    applyAuraSize();
+  });
+  applyAuraSize();
+
+  // ============================================================
+  // COLOR THEMES
+  // ============================================================
+  const THEMES = {
+    Maddy: {
+      name: "Maddy",
+      attractors: [
+        { hue: 348, w: 1.8 }, { hue: 332, w: 1.6 }, { hue: 8, w: 1.4 },
+        { hue: 28,  w: 1.2 }, { hue: 195, w: 0.55 }, { hue: 280, w: 0.50 },
+        { hue: 46,  w: 0.45 }
+      ],
+      aura: [
+        "rgba(255,170,200,0.85)","rgba(255,200,150,0.80)","rgba(255,240,180,0.85)",
+        "rgba(190,235,200,0.80)","rgba(170,210,250,0.85)","rgba(210,180,240,0.85)",
+        "rgba(255,170,200,0.85)"
+      ]
+    },
+    Ember: {
+      name: "Ember",
+      attractors: [
+        { hue: 12, w: 1.8 }, { hue: 28, w: 1.5 }, { hue: 38, w: 1.3 },
+        { hue: 350, w: 1.2 }, { hue: 50, w: 0.6 }, { hue: 22, w: 0.5 },
+        { hue: 5, w: 0.45 }
+      ],
+      aura: [
+        "rgba(255,90,40,0.85)","rgba(255,140,60,0.85)","rgba(255,200,80,0.80)",
+        "rgba(255,160,40,0.85)","rgba(220,80,40,0.85)","rgba(180,40,30,0.80)",
+        "rgba(255,90,40,0.85)"
+      ]
+    },
+    Ocean: {
+      name: "Ocean",
+      attractors: [
+        { hue: 195, w: 1.8 }, { hue: 210, w: 1.5 }, { hue: 175, w: 1.3 },
+        { hue: 220, w: 1.2 }, { hue: 160, w: 0.6 }, { hue: 240, w: 0.5 },
+        { hue: 200, w: 0.45 }
+      ],
+      aura: [
+        "rgba(40,170,210,0.85)","rgba(60,200,230,0.85)","rgba(80,230,200,0.80)",
+        "rgba(40,140,200,0.85)","rgba(120,210,240,0.85)","rgba(60,100,180,0.80)",
+        "rgba(40,170,210,0.85)"
+      ]
+    },
+    Forest: {
+      name: "Forest",
+      attractors: [
+        { hue: 110, w: 1.8 }, { hue: 90, w: 1.5 }, { hue: 130, w: 1.3 },
+        { hue: 60, w: 1.2 }, { hue: 170, w: 0.6 }, { hue: 80, w: 0.5 },
+        { hue: 100, w: 0.45 }
+      ],
+      aura: [
+        "rgba(80,200,100,0.85)","rgba(160,220,80,0.85)","rgba(60,180,150,0.80)",
+        "rgba(120,200,60,0.85)","rgba(40,140,100,0.85)","rgba(180,210,80,0.80)",
+        "rgba(80,200,100,0.85)"
+      ]
+    },
+    Twilight: {
+      name: "Twilight",
+      attractors: [
+        { hue: 290, w: 1.8 }, { hue: 310, w: 1.5 }, { hue: 270, w: 1.3 },
+        { hue: 330, w: 1.2 }, { hue: 250, w: 0.6 }, { hue: 220, w: 0.5 },
+        { hue: 200, w: 0.45 }
+      ],
+      aura: [
+        "rgba(180,80,200,0.85)","rgba(220,100,210,0.85)","rgba(140,60,200,0.80)",
+        "rgba(240,120,180,0.85)","rgba(100,80,210,0.85)","rgba(70,90,200,0.80)",
+        "rgba(180,80,200,0.85)"
+      ]
+    },
+    Sunset: {
+      name: "Sunset",
+      attractors: [
+        { hue: 20, w: 1.8 }, { hue: 340, w: 1.5 }, { hue: 40, w: 1.3 },
+        { hue: 320, w: 1.2 }, { hue: 280, w: 0.6 }, { hue: 50, w: 0.5 },
+        { hue: 10, w: 0.45 }
+      ],
+      aura: [
+        "rgba(255,140,80,0.85)","rgba(255,100,140,0.85)","rgba(255,200,100,0.80)",
+        "rgba(220,80,170,0.85)","rgba(160,90,210,0.85)","rgba(255,180,90,0.80)",
+        "rgba(255,140,80,0.85)"
+      ]
+    },
+    Frost: {
+      name: "Frost",
+      attractors: [
+        { hue: 200, w: 1.8 }, { hue: 220, w: 1.5 }, { hue: 180, w: 1.3 },
+        { hue: 240, w: 1.2 }, { hue: 195, w: 0.6 }, { hue: 260, w: 0.5 },
+        { hue: 210, w: 0.45 }
+      ],
+      aura: [
+        "rgba(180,210,240,0.85)","rgba(200,220,250,0.85)","rgba(160,230,230,0.80)",
+        "rgba(190,200,240,0.85)","rgba(220,235,250,0.85)","rgba(180,180,230,0.80)",
+        "rgba(180,210,240,0.85)"
+      ]
+    },
+    Custom: {
+      name: "Custom",
+      attractors: null, // loaded from localStorage on demand
+      aura: null
+    }
+  };
+
+  const THEME_KEY = "memory-orb.color-theme";
+  const CUSTOM_KEY = "memory-orb.custom-theme";
+
+  // The 7 attractor positions are CONSTANT — themes only change hues + weights
+  const ATTRACTOR_POSITIONS = [
+    { x:  0.55, y:  0.25, z:  0.35 },
+    { x: -0.20, y:  0.55, z:  0.40 },
+    { x:  0.30, y: -0.40, z:  0.55 },
+    { x: -0.55, y: -0.30, z: -0.20 },
+    { x:  0.10, y:  0.10, z: -0.75 },
+    { x: -0.40, y:  0.45, z: -0.40 },
+    { x:  0.40, y: -0.55, z: -0.20 }
+  ];
+
+  function applyTheme(themeName) {
+    let theme = THEMES[themeName];
+    if (!theme) { themeName = "Maddy"; theme = THEMES.Maddy; }
+    let attrs, aura;
+    if (themeName === "Custom") {
+      const saved = JSON.parse(localStorage.getItem(CUSTOM_KEY) || "null");
+      if (saved && saved.attractors) {
+        attrs = saved.attractors;
+        aura = saved.aura;
+      } else {
+        // Initialize Custom from Maddy
+        attrs = THEMES.Maddy.attractors.map(a => ({...a}));
+        aura = THEMES.Maddy.aura.slice();
+        localStorage.setItem(CUSTOM_KEY, JSON.stringify({attractors: attrs, aura}));
+      }
+    } else {
+      attrs = theme.attractors;
+      aura = theme.aura;
+    }
+    // Update ATTRACTORS in place (positions stay, hues/weights change)
+    for (let i = 0; i < ATTRACTORS.length; i++) {
+      ATTRACTORS[i].hue = attrs[i].hue;
+      ATTRACTORS[i].w = attrs[i].w;
+    }
+    // Update aura background
+    if (auraEl && aura) {
+      auraEl.style.background = `conic-gradient(from 0deg, ${aura.join(", ")})`;
+    }
+    // Recompute stardust hues
+    for (const d of stardust) {
+      const c = colorAt({ x: d.x, y: d.y, z: d.z });
+      d.hue = c.hue; d.sat = c.sat; d.light = c.light;
+    }
+    localStorage.setItem(THEME_KEY, themeName);
+    document.querySelectorAll(".theme-item").forEach(el => {
+      el.classList.toggle("active", el.dataset.theme === themeName);
+    });
+    document.getElementById("custom-controls").style.display = themeName === "Custom" ? "flex" : "none";
+    if (themeName === "Custom") renderCustomSliders();
+  }
+
+  // Themes menu UI
+  const themesPanel = document.getElementById("themes-panel");
+  const themesGrid = document.getElementById("themes-grid");
+  function renderThemesGrid() {
+    themesGrid.innerHTML = Object.keys(THEMES).map(name => {
+      const t = THEMES[name];
+      let dotHue;
+      if (name === "Custom") {
+        const saved = JSON.parse(localStorage.getItem(CUSTOM_KEY) || "null");
+        dotHue = (saved && saved.attractors) ? saved.attractors[0].hue : THEMES.Maddy.attractors[0].hue;
+      } else {
+        dotHue = t.attractors[0].hue;
+      }
+      return `<div class="theme-item" data-theme="${name}">
+        <span>${t.name.toLowerCase()}</span>
+        <span class="theme-item-dot" style="background:hsl(${dotHue},70%,65%)"></span>
+      </div>`;
+    }).join("");
+    themesGrid.querySelectorAll(".theme-item").forEach(el => {
+      el.addEventListener("click", () => applyTheme(el.dataset.theme));
+    });
+    const current = localStorage.getItem(THEME_KEY) || "Maddy";
+    document.querySelectorAll(".theme-item").forEach(el => {
+      el.classList.toggle("active", el.dataset.theme === current);
+    });
+  }
+
+  function renderCustomSliders() {
+    const saved = JSON.parse(localStorage.getItem(CUSTOM_KEY) || "null") || {
+      attractors: THEMES.Maddy.attractors.map(a => ({...a})),
+      aura: THEMES.Maddy.aura.slice()
+    };
+    const root = document.getElementById("custom-sliders");
+    root.innerHTML = saved.attractors.map((a, i) => `
+      <div class="hue-row">
+        <div class="hue-label" id="hue-label-${i}" style="background:hsl(${a.hue},70%,60%)"></div>
+        <input type="range" min="0" max="360" step="1" value="${a.hue}" data-i="${i}" />
+      </div>
+    `).join("");
+    root.querySelectorAll("input[type='range']").forEach(input => {
+      input.addEventListener("input", () => {
+        const i = parseInt(input.dataset.i, 10);
+        const hue = parseInt(input.value, 10);
+        saved.attractors[i].hue = hue;
+        // Regenerate aura colors from attractor hues
+        saved.aura = saved.attractors.map(a => `hsla(${a.hue},75%,65%,0.85)`);
+        saved.aura.push(saved.aura[0]); // close the loop
+        localStorage.setItem(CUSTOM_KEY, JSON.stringify(saved));
+        document.getElementById("hue-label-" + i).style.background = `hsl(${hue},70%,60%)`;
+        applyTheme("Custom");
+      });
+    });
+  }
+
+  document.getElementById("btn-themes").addEventListener("click", () => {
+    if (themesPanel.classList.contains("open")) {
+      themesPanel.classList.remove("open");
+    } else {
+      renderThemesGrid();
+      themesPanel.classList.add("open");
+      // Make sure custom controls are correctly visible
+      const current = localStorage.getItem(THEME_KEY) || "Maddy";
+      document.getElementById("custom-controls").style.display = current === "Custom" ? "flex" : "none";
+      if (current === "Custom") renderCustomSliders();
+    }
+  });
+
+  // Apply saved theme on startup
+  applyTheme(localStorage.getItem(THEME_KEY) || "Maddy");
+
+  // ============================================================
+  // AMBIENT MODE
+  // ============================================================
+  const AMBIENT_KEY = "memory-orb.ambient";
+  let ambientMode = localStorage.getItem(AMBIENT_KEY) === "1";
+  let exitTimer = null;
+
+  function applyAmbient() {
+    document.body.classList.toggle("ambient", ambientMode);
+  }
+  applyAmbient();
+
+  document.getElementById("btn-ambient").addEventListener("click", () => {
+    ambientMode = true;
+    localStorage.setItem(AMBIENT_KEY, "1");
+    applyAmbient();
+    showToast("ambient mode · move mouse to exit");
+  });
+  document.getElementById("ambient-exit").addEventListener("click", () => {
+    ambientMode = false;
+    localStorage.setItem(AMBIENT_KEY, "0");
+    applyAmbient();
+    document.body.classList.remove("show-exit");
+  });
+
+  // Reveal exit dot on any pointer movement, fade after 2.5s of stillness
+  document.addEventListener("pointermove", () => {
+    if (!ambientMode) return;
+    document.body.classList.add("show-exit");
+    if (exitTimer) clearTimeout(exitTimer);
+    exitTimer = setTimeout(() => document.body.classList.remove("show-exit"), 2500);
+  });
+
+  // Dark mode is now permanent — light mode removed.
+  const isDark = true;
+  document.body.classList.add("dark");
 
   // ============================================================
   // STARS
@@ -1847,13 +2732,14 @@
     for (let i = 0; i < n; i++) {
       const x = Math.random() * 100;
       const y = Math.random() * 100;
-      const d = (Math.random() * 4).toFixed(2);
-      const s = (0.5 + Math.random() * 1.5).toFixed(2);
-      html += `<div style="left:${x}%;top:${y}%;animation-delay:${d}s;transform:scale(${s})"></div>`;
+      const dur = (10 + Math.random() * 12).toFixed(2);    // 10-22s, very slow
+      const delay = (-Math.random() * 22).toFixed(2);       // out-of-sync phase offset
+      const s = (0.6 + Math.random() * 1.2).toFixed(2);
+      html += `<div style="left:${x}%;top:${y}%;animation:twinkle ${dur}s ${delay}s ease-in-out infinite;transform:scale(${s})"></div>`;
     }
     root.innerHTML = html;
   }
-  makeStars(60);
+  makeStars(180);
 
   // ============================================================
   // INIT
@@ -1863,7 +2749,7 @@
   autoresize();
   render();
 
-  // Hide hint after first interaction
+  // Hide hint after 10 seconds, or after first interaction (whichever comes first)
   let hintHidden = false;
   function hideHint() {
     if (hintHidden) return;
@@ -1872,6 +2758,7 @@
   }
   canvas.addEventListener("pointerdown", hideHint, { once: true });
   capText.addEventListener("focus", hideHint, { once: true });
+  setTimeout(hideHint, 10000);
 })();
 </script>
 </body>
