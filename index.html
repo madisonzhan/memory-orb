@@ -175,7 +175,7 @@
   .aura {
     position: fixed;
     top: 50%; left: 50%;
-    width: 80vmin; height: 80vmin;
+    width: 52vmin; height: 52vmin;
     border-radius: 50%;
     pointer-events: none;
     filter: blur(50px) hue-rotate(var(--aura-hue, 0deg));
@@ -2944,7 +2944,7 @@
   auraInput.max = (isFinite(auraRadiusFactor) ? auraRadiusFactor : 1.6).toString();
   function applyAuraSize() {
     if (auraEl) {
-      const size = (80 * auraRadiusFactor).toFixed(1);
+      const size = (52 * auraRadiusFactor).toFixed(1);
       auraEl.style.width = size + "vmin";
       auraEl.style.height = size + "vmin";
     }
