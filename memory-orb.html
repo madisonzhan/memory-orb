@@ -190,8 +190,6 @@
       rgba(255, 170, 200, 0.85));
     opacity: 0.95;
     z-index: 1;
-    transition: filter 0.4s ease;
-    will-change: transform;
   }
 
   /* canvas */
@@ -522,6 +520,200 @@
     color: var(--ink-faint); font-style: italic; font-family: var(--serif);
     font-size: 14px; line-height: 1.6;
   }
+
+  /* floating actions panel for the hovered orb (galaxy view) */
+  .orb-actions-panel {
+    position: fixed;
+    top: 70px; left: 50%;
+    transform: translateX(-50%);
+    display: none;
+    align-items: center;
+    gap: 18px;
+    z-index: 30;
+    font-family: var(--sans);
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    color: rgba(220, 200, 240, 0.8);
+    pointer-events: auto;
+  }
+  body.galaxy-view .orb-actions-panel.show { display: flex; }
+  .orb-actions-panel .orb-actions-name {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    color: rgba(255,255,255,0.95);
+  }
+  .orb-actions-panel a {
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+  .orb-actions-panel a:hover { color: #f0eaff; }
+  .orb-actions-panel a.danger:hover { color: #ff8aa0; }
+
+  /* inline rename input for galaxy orbs (works without browser prompt) */
+  .orb-rename-input {
+    position: fixed;
+    background: rgba(20, 12, 35, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(180, 150, 220, 0.4);
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 17px;
+    color: #f0eaff;
+    outline: 0;
+    z-index: 100;
+    display: none;
+    text-align: center;
+    min-width: 200px;
+    box-shadow: 0 12px 32px -10px rgba(0,0,0,0.6);
+  }
+  .orb-rename-input.show { display: block; }
+  .orb-rename-actions {
+    position: fixed;
+    z-index: 100;
+    display: none;
+    gap: 10px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-family: var(--sans);
+  }
+  .orb-rename-actions.show { display: flex; }
+  .orb-rename-actions a {
+    color: rgba(220, 200, 240, 0.7);
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+  .orb-rename-actions a:hover { color: #f0eaff; }
+  .orb-rename-actions a.danger:hover { color: #ff8aa0; }
+
+  /* galaxy 3D view — hide orb-mode UI AND the hazy atmosphere layers (which glitch on dark bg) */
+  body.galaxy-view .capture,
+  body.galaxy-view .aura,
+  body.galaxy-view .atmosphere,
+  body.galaxy-view .clouds,
+  body.galaxy-view .size-controls,
+  body.galaxy-view .hint,
+  body.galaxy-view .memory-display,
+  body.galaxy-view .panel,
+  body.galaxy-view .patterns,
+  body.galaxy-view .themes-menu,
+  body.galaxy-view .constellation-toggle,
+  body.galaxy-view #btn-themes,
+  body.galaxy-view #btn-ambient,
+  body.galaxy-view #btn-patterns,
+  body.galaxy-view #btn-constellations,
+  body.galaxy-view #btn-browse,
+  body.galaxy-view #btn-export,
+  body.galaxy-view #btn-import {
+    display: none !important;
+  }
+  /* Galaxy view bg = pure deep void with just the slow-twinkling stars */
+  body.galaxy-view .stars {
+    -webkit-mask: none;
+            mask: none;
+  }
+  body.galaxy-view #btn-galaxy::before { content: "← "; }
+  .galaxy-floating-new {
+    position: fixed;
+    bottom: 56px; left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    color: rgba(220, 200, 240, 0.7);
+    cursor: pointer;
+    z-index: 30;
+    transition: color 0.2s, transform 0.15s;
+    display: none;
+    letter-spacing: 0.3px;
+  }
+  body.galaxy-view .galaxy-floating-new { display: block; }
+  .galaxy-floating-new:hover { color: #f0eaff; transform: translateX(-50%) translateY(-1px); }
+  .galaxy-hint {
+    position: fixed;
+    bottom: 28px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: rgba(220, 200, 240, 0.4);
+    z-index: 30;
+    display: none;
+    pointer-events: none;
+    text-align: center;
+    font-family: var(--sans);
+  }
+  body.galaxy-view .galaxy-hint { display: block; }
+
+  /* galaxy menu — clean vertical strip on the left */
+  .galaxy-menu {
+    position: fixed;
+    left: 28px; top: 50%;
+    transform: translateY(-50%);
+    display: none;
+    flex-direction: column;
+    gap: 14px;
+    z-index: 28;
+    background: transparent;
+    align-items: flex-start;
+  }
+  .galaxy-menu.open { display: flex; }
+  body.ambient .galaxy-menu { display: none !important; }
+  .galaxy-list { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+  .galaxy-item {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    color: rgba(220, 200, 240, 0.7);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: color 0.2s, transform 0.15s;
+    letter-spacing: 0.3px;
+  }
+  .galaxy-item:hover { color: #f0eaff; transform: translateX(2px); }
+  .galaxy-item.active { color: #f0eaff; }
+  .galaxy-item .name { min-width: 100px; }
+  .galaxy-item .count {
+    font-family: var(--sans);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: rgba(220, 200, 240, 0.45);
+    font-style: normal;
+  }
+  .galaxy-item .actions-mini {
+    opacity: 0;
+    display: flex;
+    gap: 6px;
+    transition: opacity 0.15s;
+  }
+  .galaxy-item:hover .actions-mini { opacity: 1; }
+  .galaxy-item .mini-btn {
+    background: transparent; border: 0;
+    color: rgba(220, 200, 240, 0.5);
+    font-size: 10px;
+    cursor: pointer;
+    padding: 0 2px;
+    font-family: var(--sans);
+  }
+  .galaxy-item .mini-btn:hover { color: #f0eaff; }
+  .galaxy-new {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    color: rgba(220, 200, 240, 0.55);
+    cursor: pointer;
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(180, 150, 220, 0.15);
+    transition: color 0.2s, transform 0.15s;
+    letter-spacing: 0.3px;
+  }
+  .galaxy-new:hover { color: #f0eaff; transform: translateX(2px); }
 
   /* themes menu — clean vertical strip on the right */
   .themes-menu {
@@ -934,6 +1126,7 @@
 <header>
   <div class="brand">memory orb<span class="count" id="count">·</span></div>
   <div class="actions">
+    <button id="btn-galaxy">galaxy</button>
     <button id="btn-themes">themes</button>
     <button id="btn-ambient" title="ambient mode (hide UI)">ambient</button>
     <button id="btn-patterns">find patterns</button>
@@ -996,6 +1189,12 @@
   <div id="patterns-content"></div>
 </aside>
 
+<!-- Galaxy menu (left-side vertical strip — list of orbs) -->
+<aside class="galaxy-menu" id="galaxy-panel">
+  <div id="galaxy-list" class="galaxy-list"></div>
+  <div class="galaxy-new" id="galaxy-new">+ new orb</div>
+</aside>
+
 <!-- Themes menu (right-side vertical strip) -->
 <aside class="themes-menu" id="themes-panel">
   <div id="themes-grid" class="themes-list"></div>
@@ -1013,7 +1212,7 @@
     <div class="ct-shell" id="ct-shell">outer</div>
   </div>
   <button class="ct-arrow" id="ct-next" title="next constellation">›</button>
-  <button class="ct-close" id="ct-close" title="exit constellations">&times;</button>
+  <button class="ct-close" id="ct-close" title="exit constellations" style="display:none">&times;</button>
 </div>
 
 <!-- Memory text overlay (centered in orb) -->
@@ -1042,6 +1241,19 @@
   </div>
 </div>
 
+<div class="galaxy-floating-new" id="galaxy-floating-new" title="create a new orb">+ new orb</div>
+<div class="galaxy-hint">click an orb to enter · drag to rotate</div>
+<div class="orb-actions-panel" id="orb-actions-panel">
+  <span class="orb-actions-name" id="orb-actions-name"></span>
+  <a id="orb-actions-rename">✎ rename</a>
+  <a id="orb-actions-delete" class="danger">× delete</a>
+</div>
+<input class="orb-rename-input" id="orb-rename-input" maxlength="40" />
+<div class="orb-rename-actions" id="orb-rename-actions">
+  <a id="orb-rename-edit">✎ rename</a>
+  <a id="orb-rename-delete" class="danger">× delete</a>
+</div>
+
 <button class="ambient-exit" id="ambient-exit" title="exit ambient mode"></button>
 
 <div class="toast" id="toast"></div>
@@ -1051,11 +1263,47 @@
   "use strict";
 
   // ============================================================
-  // STORAGE
+  // GALAXY (multiple orbs)
   // ============================================================
-  const STORAGE_KEY = "memory-orb.v3.entries";
-  const POS_KEY = "memory-orb.v3.positions";
-  const SEEN_KEY = "memory-orb.v3.seen";
+  const ORB_LIST_KEY = "memory-orb.galaxy.list";
+  const ACTIVE_ORB_KEY = "memory-orb.galaxy.active";
+  const MIGRATION_KEY = "memory-orb.galaxy.migrated.v1";
+
+  // Initialize galaxy: existing data lives under "v3" namespace as the first orb
+  let orbList = (function() {
+    try { return JSON.parse(localStorage.getItem(ORB_LIST_KEY)) || []; } catch (e) { return []; }
+  })();
+  if (orbList.length === 0) {
+    orbList = [{ id: "v3", name: "first orb", created: Date.now() }];
+    localStorage.setItem(ORB_LIST_KEY, JSON.stringify(orbList));
+  }
+  let activeOrbId = localStorage.getItem(ACTIVE_ORB_KEY);
+  if (!activeOrbId || !orbList.some(o => o.id === activeOrbId)) {
+    activeOrbId = orbList[0].id;
+    localStorage.setItem(ACTIVE_ORB_KEY, activeOrbId);
+  }
+
+  // One-time migration: old global theme/halo/aura/custom keys → namespaced under v3
+  if (!localStorage.getItem(MIGRATION_KEY)) {
+    const moves = [
+      ["memory-orb.color-theme", "memory-orb.v3.color-theme"],
+      ["memory-orb.custom-theme", "memory-orb.v3.custom-theme"],
+      ["memory-orb.halo", "memory-orb.v3.halo"],
+      ["memory-orb.aura", "memory-orb.v3.aura"]
+    ];
+    for (const [oldK, newK] of moves) {
+      const v = localStorage.getItem(oldK);
+      if (v && !localStorage.getItem(newK)) localStorage.setItem(newK, v);
+    }
+    localStorage.setItem(MIGRATION_KEY, "1");
+  }
+
+  // ============================================================
+  // STORAGE (namespaced by activeOrbId)
+  // ============================================================
+  const STORAGE_KEY = `memory-orb.${activeOrbId}.entries`;
+  const POS_KEY     = `memory-orb.${activeOrbId}.positions`;
+  const SEEN_KEY    = `memory-orb.${activeOrbId}.seen`;
 
   function safeParse(raw, fallback) {
     try { return raw ? JSON.parse(raw) : fallback; } catch (e) { return fallback; }
@@ -1469,7 +1717,162 @@
 
   // (constellation edges are built above directly from real patterns)
 
+  // ============================================================
+  // GALAXY VIEW — multiple orbs as spheres in 3D space
+  // ============================================================
+  let viewMode = "orb"; // "orb" | "galaxy"
+  const galaxyCam = { yaw: 0.3, pitch: -0.15, distance: 5.0 };
+  let galaxyHoverId = null;
+
+  function hashStrLocal(s) {
+    let h = 5381;
+    for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+    return Math.abs(h);
+  }
+
+  function ensureGalaxyPositions() {
+    let changed = false;
+    for (const o of orbList) {
+      if (!o.galaxyPos) {
+        const seed = hashStrLocal(o.id);
+        const phi = ((seed % 10000) / 10000) * Math.PI * 2;
+        const cosTheta = (((seed >> 14) % 10000) / 10000) * 1.5 - 0.75;
+        const sinTheta = Math.sqrt(Math.max(0, 1 - cosTheta * cosTheta));
+        const r = 1.6 + (((seed >> 22) % 1000) / 1000) * 0.6;
+        o.galaxyPos = {
+          x: r * sinTheta * Math.cos(phi),
+          y: r * cosTheta,
+          z: r * sinTheta * Math.sin(phi)
+        };
+        changed = true;
+      }
+    }
+    if (changed) saveOrbList();
+  }
+  ensureGalaxyPositions();
+
+  function projectGalaxy(p) {
+    const cy = Math.cos(galaxyCam.yaw), sy = Math.sin(galaxyCam.yaw);
+    const cp = Math.cos(galaxyCam.pitch), sp = Math.sin(galaxyCam.pitch);
+    let x1 = p.x * cy - p.z * sy;
+    let z1 = p.x * sy + p.z * cy;
+    let y2 = p.y * cp - z1 * sp;
+    let z2 = p.y * sp + z1 * cp;
+    const f = Math.min(vw, vh) * 0.42;
+    const d = galaxyCam.distance;
+    const scale = f / (z2 + d);
+    return { x: vw / 2 + x1 * scale, y: vh / 2 + y2 * scale, z: z2, scale };
+  }
+
+  let galaxyProjectedCache = [];
+
+  function renderGalaxy() {
+    ctx.clearRect(0, 0, vw, vh);
+
+    // Slow auto-rotate when not dragging
+    if (!dragging) galaxyCam.yaw += 0.0008;
+
+    const projected = orbList.map(o => ({ orb: o, pr: projectGalaxy(o.galaxyPos) }));
+    projected.sort((a, b) => b.pr.z - a.pr.z);
+    galaxyProjectedCache = projected;
+
+    // Larger base size when there's just one orb so it doesn't feel lonely / atomic
+    const baseR = Math.min(vw, vh) * (orbList.length === 1 ? 0.07 : 0.05);
+    const t = performance.now() * 0.001;
+
+    for (const { orb, pr } of projected) {
+      const haloHue = getOrbHaloHue(orb.id);
+      const r0 = Math.max(10, baseR * (pr.scale / (Math.min(vw, vh) * 0.42 / galaxyCam.distance)));
+      // Each orb breathes on its own phase (derived from id)
+      const phase = (hashStrLocal(orb.id) % 1000) / 1000 * Math.PI * 2;
+      const breath = 1 + Math.sin(t * 0.7 + phase) * 0.04;
+      const r = r0 * breath;
+      const isHover = orb.id === galaxyHoverId;
+
+      // Far halo — very wide, very soft, gives ethereal presence
+      const farR = r * (isHover ? 5.5 : 4.5);
+      const far = ctx.createRadialGradient(pr.x, pr.y, r * 1.2, pr.x, pr.y, farR);
+      far.addColorStop(0, `hsla(${haloHue}, 80%, 75%, ${isHover ? 0.20 : 0.12})`);
+      far.addColorStop(0.5, `hsla(${haloHue}, 75%, 70%, ${isHover ? 0.08 : 0.05})`);
+      far.addColorStop(1, `hsla(${haloHue}, 70%, 60%, 0)`);
+      ctx.fillStyle = far;
+      ctx.beginPath(); ctx.arc(pr.x, pr.y, farR, 0, Math.PI * 2); ctx.fill();
+
+      // Mid aura
+      const auraR = r * (isHover ? 2.6 : 2.2);
+      const aura = ctx.createRadialGradient(pr.x, pr.y, 0, pr.x, pr.y, auraR);
+      aura.addColorStop(0, `hsla(${haloHue}, 88%, 82%, ${isHover ? 0.65 : 0.48})`);
+      aura.addColorStop(0.5, `hsla(${haloHue}, 82%, 74%, ${isHover ? 0.28 : 0.20})`);
+      aura.addColorStop(1, `hsla(${haloHue}, 70%, 60%, 0)`);
+      ctx.fillStyle = aura;
+      ctx.beginPath(); ctx.arc(pr.x, pr.y, auraR, 0, Math.PI * 2); ctx.fill();
+
+      // Inner glow
+      const inner = ctx.createRadialGradient(pr.x, pr.y, 0, pr.x, pr.y, r * 1.1);
+      inner.addColorStop(0, `hsla(${haloHue}, 95%, 96%, 0.88)`);
+      inner.addColorStop(0.4, `hsla(${haloHue}, 92%, 87%, 0.55)`);
+      inner.addColorStop(1, `hsla(${haloHue}, 80%, 70%, 0)`);
+      ctx.fillStyle = inner;
+      ctx.beginPath(); ctx.arc(pr.x, pr.y, r * 1.1, 0, Math.PI * 2); ctx.fill();
+
+      // Bright luminous core
+      const core = ctx.createRadialGradient(pr.x, pr.y, 0, pr.x, pr.y, r * 0.45);
+      core.addColorStop(0, `rgba(255, 255, 255, 0.98)`);
+      core.addColorStop(0.5, `hsla(${haloHue}, 95%, 95%, 0.5)`);
+      core.addColorStop(1, `hsla(${haloHue}, 90%, 92%, 0)`);
+      ctx.fillStyle = core;
+      ctx.beginPath(); ctx.arc(pr.x, pr.y, r * 0.45, 0, Math.PI * 2); ctx.fill();
+
+      // Tiny bright pinpoint at center
+      ctx.fillStyle = `rgba(255, 255, 255, ${0.85 + Math.sin(t * 1.3 + phase) * 0.1})`;
+      ctx.beginPath(); ctx.arc(pr.x, pr.y, Math.max(1.5, r * 0.08), 0, Math.PI * 2); ctx.fill();
+
+      // Name + count label, just below the orb's glow
+      const labelY = pr.y + r * 1.8;
+      const labelOpacity = isHover ? 0.95 : 0.7;
+      ctx.fillStyle = `rgba(240, 234, 255, ${labelOpacity})`;
+      ctx.font = `italic ${Math.max(13, r * 0.35)}px "Iowan Old Style", "Palatino Linotype", Georgia, serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      ctx.fillText(orb.name, pr.x, labelY);
+      const cnt = countOrbEntries(orb.id);
+      ctx.fillStyle = `rgba(220, 200, 240, ${labelOpacity * 0.5})`;
+      ctx.font = `${Math.max(10, r * 0.22)}px -apple-system, BlinkMacSystemFont, sans-serif`;
+      ctx.fillText(cnt + " " + (cnt === 1 ? "memory" : "memories"), pr.x, labelY + Math.max(16, r * 0.5));
+    }
+
+    requestAnimationFrame(renderGalaxy);
+  }
+
+  function pickGalaxyAt(x, y) {
+    let best = null, bestD = 40;
+    for (const { orb, pr } of galaxyProjectedCache) {
+      const d = Math.hypot(pr.x - x, pr.y - y);
+      if (d < bestD) { best = orb.id; bestD = d; }
+    }
+    return best;
+  }
+
+  function enterGalaxyMode() {
+    viewMode = "galaxy";
+    document.body.classList.add("galaxy-view");
+    galaxyPanel.classList.remove("open");
+    renderGalaxy();
+  }
+
+  function exitGalaxyMode() {
+    viewMode = "orb";
+    document.body.classList.remove("galaxy-view");
+    document.getElementById("orb-actions-panel").classList.remove("show");
+    // Replay the intro: zoom in from far while spinning
+    intro = { startTime: performance.now(), duration: 3500, fromD: 9.5, toD: 1.85, done: false };
+    cam.distance = 9.5;
+    momentum.yaw = 0.012;
+    render();
+  }
+
   function render() {
+    if (viewMode === "galaxy") return; // galaxy renders its own loop
     ctx.clearRect(0, 0, vw, vh);
 
     if (intro && !intro.done) {
@@ -1531,22 +1934,19 @@
     const drift = Math.sin(cam.yaw * 0.5) * 8 + Math.sin(cam.pitch * 0.5) * 4;
     document.documentElement.style.setProperty("--aura-hue", drift.toFixed(1) + "deg");
 
-    // Aura follows the camera: rotates with yaw, drifts with pitch.
+    // Aura follows the camera's yaw (rotation only; centered always)
     if (auraEl) {
-      const auraRot = (cam.yaw * 60) % 360;          // gradient sweep
-      const auraTx = Math.sin(cam.yaw * 0.6) * 4;     // tiny horizontal drift (vmin)
-      const auraTy = Math.sin(cam.pitch) * 6;         // tiny vertical drift (vmin)
-      auraEl.style.transform =
-        `translate(calc(-50% + ${auraTx.toFixed(2)}vmin), calc(-50% + ${auraTy.toFixed(2)}vmin)) rotate(${auraRot.toFixed(2)}deg)`;
+      const auraRot = (cam.yaw * 60) % 360;
+      auraEl.style.transform = `translate(-50%, -50%) rotate(${auraRot.toFixed(2)}deg)`;
     }
 
     // === CONCENTRIC STRUCTURE matching the reference photo ===
 
-    // 1. Halo — color follows the current theme's primary attractor hue
+    // 1. Halo — color set by the current theme's haloHue (custom-controllable)
     const haloAlpha = isDark ? 0.32 : 0.46;
     const haloR = haloOuterR;
-    const haloHue = ATTRACTORS[0] ? ATTRACTORS[0].hue : 344;
-    const haloHue2 = ATTRACTORS[1] ? ATTRACTORS[1].hue : 334;
+    const haloHue = currentHaloHue;
+    const haloHue2 = (currentHaloHue + 350) % 360;
     const zoomFactor = Math.max(1.0, 3.6 / cam.distance);
     const innerBoost = Math.min(1.6, 1 + (zoomFactor - 1) * 0.5);
     const wideHalo = ctx.createRadialGradient(cx, cy, 0, cx, cy, haloR);
@@ -1792,8 +2192,99 @@
     camAnim = null;
     if (intro) intro.done = true;
   });
+
+  // Floating actions panel — bound to the last hovered orb so user has time to move to it
+  const orbActionsPanel = document.getElementById("orb-actions-panel");
+  const orbActionsName = document.getElementById("orb-actions-name");
+  let orbActionsTargetId = null;
+  let orbActionsHideTimer = null;
+
+  function showOrbActions(orbId) {
+    const o = orbList.find(x => x.id === orbId);
+    if (!o) return;
+    orbActionsTargetId = orbId;
+    orbActionsName.textContent = o.name;
+    orbActionsPanel.classList.add("show");
+    if (orbActionsHideTimer) { clearTimeout(orbActionsHideTimer); orbActionsHideTimer = null; }
+  }
+  function scheduleHideOrbActions() {
+    if (orbActionsHideTimer) clearTimeout(orbActionsHideTimer);
+    orbActionsHideTimer = setTimeout(() => {
+      orbActionsPanel.classList.remove("show");
+      orbActionsTargetId = null;
+    }, 2200);
+  }
+  // Keep panel visible while hovered
+  orbActionsPanel.addEventListener("pointerenter", () => {
+    if (orbActionsHideTimer) { clearTimeout(orbActionsHideTimer); orbActionsHideTimer = null; }
+  });
+  orbActionsPanel.addEventListener("pointerleave", scheduleHideOrbActions);
+  document.getElementById("orb-actions-rename").addEventListener("click", () => {
+    if (orbActionsTargetId) renameOrb(orbActionsTargetId);
+  });
+  document.getElementById("orb-actions-delete").addEventListener("click", () => {
+    if (orbActionsTargetId) deleteOrb(orbActionsTargetId);
+  });
+
+  function pointerMoveGalaxy(p) {
+    if (dragging) {
+      const dx = p.x - lastPt.x;
+      const dy = p.y - lastPt.y;
+      galaxyCam.yaw += dx * 0.005;
+      galaxyCam.pitch -= dy * 0.005;
+      galaxyCam.pitch = Math.max(-1.4, Math.min(1.4, galaxyCam.pitch));
+      lastPt = p;
+    } else {
+      const id = pickGalaxyAt(p.x, p.y);
+      if (id !== galaxyHoverId) {
+        galaxyHoverId = id;
+        canvas.style.cursor = id ? "pointer" : "grab";
+        if (id) {
+          showOrbActions(id);
+        } else {
+          scheduleHideOrbActions();
+        }
+      }
+    }
+  }
+  function pointerUpGalaxy(p, mods) {
+    mods = mods || {};
+    const wasDrag = dragStart && (Math.hypot(p.x - dragStart.x, p.y - dragStart.y) > 5);
+    if (!wasDrag) {
+      const id = pickGalaxyAt(p.x, p.y);
+      if (id) {
+        if (mods.shift) {
+          renameOrb(id);
+          return;
+        }
+        if (mods.alt || mods.meta) {
+          deleteOrb(id);
+          return;
+        }
+        if (id === activeOrbId) {
+          exitGalaxyMode();
+        } else {
+          switchToOrb(id);
+        }
+      }
+    }
+  }
+
+  // Right-click an orb in galaxy view to rename it (or delete via shift+right-click)
+  canvas.addEventListener("contextmenu", (e) => {
+    if (viewMode !== "galaxy") return;
+    e.preventDefault();
+    const id = pickGalaxyAt(e.clientX, e.clientY);
+    if (!id) return;
+    if (e.shiftKey) {
+      deleteOrb(id);
+    } else {
+      renameOrb(id);
+    }
+  });
   canvas.addEventListener("pointermove", (e) => {
     const p = getPt(e);
+    if (viewMode === "galaxy") { pointerMoveGalaxy(p); return; }
     if (dragging) {
       const dx = p.x - lastPt.x;
       const dy = p.y - lastPt.y;
@@ -1814,6 +2305,10 @@
   canvas.addEventListener("pointerup", (e) => {
     canvas.classList.remove("dragging");
     const p = getPt(e);
+    if (viewMode === "galaxy") {
+      pointerUpGalaxy(p, { shift: e.shiftKey, alt: e.altKey, meta: e.metaKey || e.ctrlKey });
+      dragging = false; dragStart = null; return;
+    }
     const wasDrag = dragStart && (Math.hypot(p.x - dragStart.x, p.y - dragStart.y) > 5);
     if (!wasDrag) {
       const id = pickAt(p.x, p.y);
@@ -2427,8 +2922,8 @@
   // ============================================================
   // SIZE SLIDERS (halo + aura) — core is locked at 0.5
   // ============================================================
-  const HALO_KEY = "memory-orb.halo";
-  const AURA_KEY = "memory-orb.aura";
+  const HALO_KEY = `memory-orb.${activeOrbId}.halo`;
+  const AURA_KEY = `memory-orb.${activeOrbId}.aura`;
   const orbRadiusFactor = 0.5;
   let haloRadiusFactor = parseFloat(localStorage.getItem(HALO_KEY));
   if (!isFinite(haloRadiusFactor)) haloRadiusFactor = 1.0;
@@ -2444,6 +2939,9 @@
 
   const auraEl = document.querySelector(".aura");
   const auraInput = document.getElementById("aura-input");
+  // Cap aura slider's max at whatever the user currently has saved.
+  // If nothing is saved, fall back to 1.6.
+  auraInput.max = (isFinite(auraRadiusFactor) ? auraRadiusFactor : 1.6).toString();
   function applyAuraSize() {
     if (auraEl) {
       const size = (80 * auraRadiusFactor).toFixed(1);
@@ -2467,9 +2965,10 @@
       name: "Maddy",
       attractors: [
         { hue: 348, w: 1.8 }, { hue: 332, w: 1.6 }, { hue: 8, w: 1.4 },
-        { hue: 28,  w: 1.2 }, { hue: 195, w: 0.55 }, { hue: 280, w: 0.50 },
-        { hue: 46,  w: 0.45 }
+        { hue: 28,  w: 1.2 }, { hue: 195, w: 0.65 }, { hue: 280, w: 0.60 },
+        { hue: 46,  w: 0.55 }
       ],
+      haloHue: 344,
       aura: [
         "rgba(255,170,200,0.85)","rgba(255,200,150,0.80)","rgba(255,240,180,0.85)",
         "rgba(190,235,200,0.80)","rgba(170,210,250,0.85)","rgba(210,180,240,0.85)",
@@ -2479,90 +2978,97 @@
     Ember: {
       name: "Ember",
       attractors: [
-        { hue: 12, w: 1.8 }, { hue: 28, w: 1.5 }, { hue: 38, w: 1.3 },
-        { hue: 350, w: 1.2 }, { hue: 50, w: 0.6 }, { hue: 22, w: 0.5 },
-        { hue: 5, w: 0.45 }
+        { hue: 12, w: 1.7 }, { hue: 35, w: 1.5 }, { hue: 350, w: 1.3 },
+        { hue: 280, w: 0.85 }, { hue: 50, w: 0.95 }, { hue: 200, w: 0.6 },
+        { hue: 165, w: 0.55 }
       ],
+      haloHue: 18,
       aura: [
-        "rgba(255,90,40,0.85)","rgba(255,140,60,0.85)","rgba(255,200,80,0.80)",
-        "rgba(255,160,40,0.85)","rgba(220,80,40,0.85)","rgba(180,40,30,0.80)",
-        "rgba(255,90,40,0.85)"
+        "rgba(255,100,50,0.85)","rgba(255,170,70,0.85)","rgba(255,220,90,0.85)",
+        "rgba(180,80,200,0.75)","rgba(255,90,140,0.85)","rgba(80,180,210,0.65)",
+        "rgba(220,60,40,0.85)"
       ]
     },
     Ocean: {
       name: "Ocean",
       attractors: [
-        { hue: 195, w: 1.8 }, { hue: 210, w: 1.5 }, { hue: 175, w: 1.3 },
-        { hue: 220, w: 1.2 }, { hue: 160, w: 0.6 }, { hue: 240, w: 0.5 },
-        { hue: 200, w: 0.45 }
+        { hue: 195, w: 1.7 }, { hue: 220, w: 1.5 }, { hue: 175, w: 1.3 },
+        { hue: 320, w: 0.85 }, { hue: 45,  w: 0.85 }, { hue: 280, w: 0.65 },
+        { hue: 5,   w: 0.55 }
       ],
+      haloHue: 200,
       aura: [
-        "rgba(40,170,210,0.85)","rgba(60,200,230,0.85)","rgba(80,230,200,0.80)",
-        "rgba(40,140,200,0.85)","rgba(120,210,240,0.85)","rgba(60,100,180,0.80)",
-        "rgba(40,170,210,0.85)"
+        "rgba(40,170,210,0.85)","rgba(80,230,220,0.85)","rgba(60,140,210,0.85)",
+        "rgba(255,150,180,0.75)","rgba(255,210,130,0.80)","rgba(180,140,230,0.75)",
+        "rgba(50,100,200,0.85)"
       ]
     },
     Forest: {
       name: "Forest",
       attractors: [
-        { hue: 110, w: 1.8 }, { hue: 90, w: 1.5 }, { hue: 130, w: 1.3 },
-        { hue: 60, w: 1.2 }, { hue: 170, w: 0.6 }, { hue: 80, w: 0.5 },
-        { hue: 100, w: 0.45 }
+        { hue: 110, w: 1.7 }, { hue: 90, w: 1.5 }, { hue: 130, w: 1.3 },
+        { hue: 25,  w: 0.85 }, { hue: 350, w: 0.80 }, { hue: 60, w: 0.85 },
+        { hue: 280, w: 0.55 }
       ],
+      haloHue: 100,
       aura: [
-        "rgba(80,200,100,0.85)","rgba(160,220,80,0.85)","rgba(60,180,150,0.80)",
-        "rgba(120,200,60,0.85)","rgba(40,140,100,0.85)","rgba(180,210,80,0.80)",
-        "rgba(80,200,100,0.85)"
+        "rgba(100,210,110,0.85)","rgba(180,220,80,0.85)","rgba(70,180,150,0.85)",
+        "rgba(220,140,80,0.80)","rgba(220,90,110,0.80)","rgba(255,220,140,0.85)",
+        "rgba(170,140,220,0.70)"
       ]
     },
     Twilight: {
       name: "Twilight",
       attractors: [
-        { hue: 290, w: 1.8 }, { hue: 310, w: 1.5 }, { hue: 270, w: 1.3 },
-        { hue: 330, w: 1.2 }, { hue: 250, w: 0.6 }, { hue: 220, w: 0.5 },
-        { hue: 200, w: 0.45 }
+        { hue: 290, w: 1.7 }, { hue: 310, w: 1.5 }, { hue: 260, w: 1.3 },
+        { hue: 45,  w: 0.85 }, { hue: 200, w: 0.85 }, { hue: 350, w: 0.75 },
+        { hue: 22,  w: 0.55 }
       ],
+      haloHue: 295,
       aura: [
-        "rgba(180,80,200,0.85)","rgba(220,100,210,0.85)","rgba(140,60,200,0.80)",
-        "rgba(240,120,180,0.85)","rgba(100,80,210,0.85)","rgba(70,90,200,0.80)",
-        "rgba(180,80,200,0.85)"
+        "rgba(170,90,210,0.85)","rgba(230,110,200,0.85)","rgba(120,70,210,0.85)",
+        "rgba(255,210,130,0.80)","rgba(110,160,220,0.80)","rgba(255,140,170,0.80)",
+        "rgba(255,160,90,0.75)"
       ]
     },
     Sunset: {
       name: "Sunset",
       attractors: [
-        { hue: 20, w: 1.8 }, { hue: 340, w: 1.5 }, { hue: 40, w: 1.3 },
-        { hue: 320, w: 1.2 }, { hue: 280, w: 0.6 }, { hue: 50, w: 0.5 },
-        { hue: 10, w: 0.45 }
+        { hue: 20,  w: 1.7 }, { hue: 340, w: 1.5 }, { hue: 50,  w: 1.3 },
+        { hue: 320, w: 1.0 }, { hue: 280, w: 0.85 }, { hue: 200, w: 0.75 },
+        { hue: 165, w: 0.55 }
       ],
+      haloHue: 18,
       aura: [
-        "rgba(255,140,80,0.85)","rgba(255,100,140,0.85)","rgba(255,200,100,0.80)",
-        "rgba(220,80,170,0.85)","rgba(160,90,210,0.85)","rgba(255,180,90,0.80)",
-        "rgba(255,140,80,0.85)"
+        "rgba(255,140,80,0.85)","rgba(255,100,140,0.85)","rgba(255,210,110,0.85)",
+        "rgba(220,80,170,0.85)","rgba(160,90,210,0.80)","rgba(110,170,220,0.75)",
+        "rgba(80,200,200,0.65)"
       ]
     },
     Frost: {
       name: "Frost",
       attractors: [
-        { hue: 200, w: 1.8 }, { hue: 220, w: 1.5 }, { hue: 180, w: 1.3 },
-        { hue: 240, w: 1.2 }, { hue: 195, w: 0.6 }, { hue: 260, w: 0.5 },
-        { hue: 210, w: 0.45 }
+        { hue: 200, w: 1.7 }, { hue: 220, w: 1.4 }, { hue: 180, w: 1.2 },
+        { hue: 320, w: 0.80 }, { hue: 50,  w: 0.75 }, { hue: 280, w: 0.85 },
+        { hue: 145, w: 0.55 }
       ],
+      haloHue: 210,
       aura: [
-        "rgba(180,210,240,0.85)","rgba(200,220,250,0.85)","rgba(160,230,230,0.80)",
-        "rgba(190,200,240,0.85)","rgba(220,235,250,0.85)","rgba(180,180,230,0.80)",
-        "rgba(180,210,240,0.85)"
+        "rgba(180,220,250,0.85)","rgba(210,230,255,0.85)","rgba(150,225,225,0.80)",
+        "rgba(255,200,220,0.75)","rgba(255,235,180,0.75)","rgba(200,180,240,0.80)",
+        "rgba(160,230,200,0.70)"
       ]
     },
     Custom: {
       name: "Custom",
-      attractors: null, // loaded from localStorage on demand
+      attractors: null,
+      haloHue: null,
       aura: null
     }
   };
 
-  const THEME_KEY = "memory-orb.color-theme";
-  const CUSTOM_KEY = "memory-orb.custom-theme";
+  const THEME_KEY = `memory-orb.${activeOrbId}.color-theme`;
+  const CUSTOM_KEY = `memory-orb.${activeOrbId}.custom-theme`;
 
   // The 7 attractor positions are CONSTANT — themes only change hues + weights
   const ATTRACTOR_POSITIONS = [
@@ -2575,25 +3081,30 @@
     { x:  0.40, y: -0.55, z: -0.20 }
   ];
 
+  let currentHaloHue = 344;
+
   function applyTheme(themeName) {
     let theme = THEMES[themeName];
     if (!theme) { themeName = "Maddy"; theme = THEMES.Maddy; }
-    let attrs, aura;
+    let attrs, aura, haloHue;
     if (themeName === "Custom") {
       const saved = JSON.parse(localStorage.getItem(CUSTOM_KEY) || "null");
       if (saved && saved.attractors) {
         attrs = saved.attractors;
         aura = saved.aura;
+        haloHue = (typeof saved.haloHue === "number") ? saved.haloHue : saved.attractors[0].hue;
       } else {
-        // Initialize Custom from Maddy
         attrs = THEMES.Maddy.attractors.map(a => ({...a}));
         aura = THEMES.Maddy.aura.slice();
-        localStorage.setItem(CUSTOM_KEY, JSON.stringify({attractors: attrs, aura}));
+        haloHue = THEMES.Maddy.haloHue;
+        localStorage.setItem(CUSTOM_KEY, JSON.stringify({attractors: attrs, aura, haloHue}));
       }
     } else {
       attrs = theme.attractors;
       aura = theme.aura;
+      haloHue = theme.haloHue || theme.attractors[0].hue;
     }
+    currentHaloHue = haloHue;
     // Update ATTRACTORS in place (positions stay, hues/weights change)
     for (let i = 0; i < ATTRACTORS.length; i++) {
       ATTRACTORS[i].hue = attrs[i].hue;
@@ -2646,25 +3157,37 @@
   function renderCustomSliders() {
     const saved = JSON.parse(localStorage.getItem(CUSTOM_KEY) || "null") || {
       attractors: THEMES.Maddy.attractors.map(a => ({...a})),
-      aura: THEMES.Maddy.aura.slice()
+      aura: THEMES.Maddy.aura.slice(),
+      haloHue: THEMES.Maddy.haloHue
     };
+    if (typeof saved.haloHue !== "number") saved.haloHue = saved.attractors[0].hue;
     const root = document.getElementById("custom-sliders");
     root.innerHTML = saved.attractors.map((a, i) => `
       <div class="hue-row">
         <div class="hue-label" id="hue-label-${i}" style="background:hsl(${a.hue},70%,60%)"></div>
-        <input type="range" min="0" max="360" step="1" value="${a.hue}" data-i="${i}" />
+        <input type="range" min="0" max="360" step="1" value="${a.hue}" data-i="${i}" data-kind="attractor" />
       </div>
-    `).join("");
+    `).join("") + `
+      <div style="margin-top:10px;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-faint);font-family:var(--sans);text-align:right;">halo</div>
+      <div class="hue-row">
+        <div class="hue-label" id="hue-label-halo" style="background:hsl(${saved.haloHue},70%,60%)"></div>
+        <input type="range" min="0" max="360" step="1" value="${saved.haloHue}" data-kind="halo" />
+      </div>
+    `;
     root.querySelectorAll("input[type='range']").forEach(input => {
       input.addEventListener("input", () => {
-        const i = parseInt(input.dataset.i, 10);
         const hue = parseInt(input.value, 10);
-        saved.attractors[i].hue = hue;
-        // Regenerate aura colors from attractor hues
-        saved.aura = saved.attractors.map(a => `hsla(${a.hue},75%,65%,0.85)`);
-        saved.aura.push(saved.aura[0]); // close the loop
+        if (input.dataset.kind === "halo") {
+          saved.haloHue = hue;
+          document.getElementById("hue-label-halo").style.background = `hsl(${hue},70%,60%)`;
+        } else {
+          const i = parseInt(input.dataset.i, 10);
+          saved.attractors[i].hue = hue;
+          saved.aura = saved.attractors.map(a => `hsla(${a.hue},75%,65%,0.85)`);
+          saved.aura.push(saved.aura[0]);
+          document.getElementById("hue-label-" + i).style.background = `hsl(${hue},70%,60%)`;
+        }
         localStorage.setItem(CUSTOM_KEY, JSON.stringify(saved));
-        document.getElementById("hue-label-" + i).style.background = `hsl(${hue},70%,60%)`;
         applyTheme("Custom");
       });
     });
@@ -2676,15 +3199,241 @@
     } else {
       renderThemesGrid();
       themesPanel.classList.add("open");
-      // Make sure custom controls are correctly visible
       const current = localStorage.getItem(THEME_KEY) || "Maddy";
       document.getElementById("custom-controls").style.display = current === "Custom" ? "flex" : "none";
       if (current === "Custom") renderCustomSliders();
     }
   });
 
+  // Close themes menu when any other action button is clicked
+  ["btn-ambient","btn-patterns","btn-constellations","btn-browse","btn-export","btn-import"].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.addEventListener("click", () => themesPanel.classList.remove("open"));
+  });
+
   // Apply saved theme on startup
   applyTheme(localStorage.getItem(THEME_KEY) || "Maddy");
+
+  // ============================================================
+  // GALAXY MENU (orb list, create, switch, rename, delete)
+  // ============================================================
+  const galaxyPanel = document.getElementById("galaxy-panel");
+  const galaxyList = document.getElementById("galaxy-list");
+
+  function saveOrbList() {
+    localStorage.setItem(ORB_LIST_KEY, JSON.stringify(orbList));
+  }
+
+  function countOrbEntries(orbId) {
+    try {
+      const raw = localStorage.getItem(`memory-orb.${orbId}.entries`);
+      return raw ? JSON.parse(raw).length : 0;
+    } catch (e) { return 0; }
+  }
+
+  function getOrbHaloHue(orbId) {
+    // Quick read of the orb's saved theme to determine its dot color
+    const themeName = localStorage.getItem(`memory-orb.${orbId}.color-theme`) || "Maddy";
+    if (themeName === "Custom") {
+      try {
+        const c = JSON.parse(localStorage.getItem(`memory-orb.${orbId}.custom-theme`));
+        if (c && typeof c.haloHue === "number") return c.haloHue;
+        if (c && c.attractors && c.attractors[0]) return c.attractors[0].hue;
+      } catch (e) {}
+      return 344;
+    }
+    return (THEMES[themeName] && THEMES[themeName].haloHue) || 344;
+  }
+
+  function renderGalaxyList() {
+    galaxyList.innerHTML = orbList.map(o => {
+      const isActive = o.id === activeOrbId;
+      const count = countOrbEntries(o.id);
+      const dotHue = getOrbHaloHue(o.id);
+      return `<div class="galaxy-item ${isActive ? "active" : ""}" data-id="${o.id}">
+        <span class="theme-item-dot" style="background:hsl(${dotHue},70%,65%)"></span>
+        <span class="name">${escapeHTML(o.name)}</span>
+        <span class="count">${count}</span>
+        <span class="actions-mini">
+          <button class="mini-btn" data-act="rename">rename</button>
+          ${orbList.length > 1 ? '<button class="mini-btn" data-act="delete">×</button>' : ''}
+        </span>
+      </div>`;
+    }).join("");
+    galaxyList.querySelectorAll(".galaxy-item").forEach(el => {
+      const id = el.dataset.id;
+      el.addEventListener("click", (e) => {
+        if (e.target.closest(".mini-btn")) return;
+        if (id !== activeOrbId) switchToOrb(id);
+      });
+      const renameBtn = el.querySelector('[data-act="rename"]');
+      const deleteBtn = el.querySelector('[data-act="delete"]');
+      if (renameBtn) renameBtn.addEventListener("click", (e) => { e.stopPropagation(); renameOrb(id); });
+      if (deleteBtn) deleteBtn.addEventListener("click", (e) => { e.stopPropagation(); deleteOrb(id); });
+    });
+  }
+
+  function switchToOrb(orbId) {
+    localStorage.setItem(ACTIVE_ORB_KEY, orbId);
+    location.reload();
+  }
+
+  function newOrb() {
+    // Inline name prompt at center of screen
+    renamingOrbId = "_NEW_";
+    renameInput.value = "";
+    renameInput.placeholder = "name this orb…";
+    renameInput.classList.add("show");
+    requestAnimationFrame(() => {
+      const w = renameInput.offsetWidth, h = renameInput.offsetHeight;
+      renameInput.style.left = ((vw - w) / 2) + "px";
+      renameInput.style.top = ((vh - h) / 2) + "px";
+      renameInput.focus();
+    });
+    const newHandler = (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault(); e.stopPropagation();
+        renameInput.classList.remove("show");
+        renameInput.placeholder = "";
+        renamingOrbId = null;
+        renameInput.removeEventListener("keydown", newHandler);
+        return;
+      }
+      if (e.key !== "Enter") return;
+      e.preventDefault(); e.stopPropagation();
+      const name = renameInput.value.trim();
+      if (!name) {
+        cancelRename();
+        renameInput.placeholder = "";
+        renameInput.removeEventListener("keydown", newHandler);
+        return;
+      }
+      const id = "orb_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+      orbList.push({ id, name, created: Date.now() });
+      saveOrbList();
+      renameInput.placeholder = "";
+      renameInput.removeEventListener("keydown", newHandler);
+      switchToOrb(id);
+    };
+    renameInput.addEventListener("keydown", newHandler);
+  }
+
+  // Inline rename input (works without browser modals)
+  const renameInput = document.getElementById("orb-rename-input");
+  const renameActions = document.getElementById("orb-rename-actions");
+  let renamingOrbId = null;
+
+  function showRenameInput(orbId, x, y) {
+    const o = orbList.find(x => x.id === orbId);
+    if (!o) return;
+    renamingOrbId = orbId;
+    renameInput.value = o.name;
+    renameInput.classList.add("show");
+    // Position centered on (x, y)
+    requestAnimationFrame(() => {
+      const w = renameInput.offsetWidth;
+      const h = renameInput.offsetHeight;
+      renameInput.style.left = (x - w / 2) + "px";
+      renameInput.style.top = (y - h / 2) + "px";
+      renameInput.focus();
+      renameInput.select();
+    });
+  }
+
+  function commitRename() {
+    if (!renamingOrbId) return;
+    const newName = renameInput.value.trim();
+    const o = orbList.find(x => x.id === renamingOrbId);
+    if (newName && o) {
+      o.name = newName;
+      saveOrbList();
+    }
+    cancelRename();
+  }
+  function cancelRename() {
+    renameInput.classList.remove("show");
+    renamingOrbId = null;
+  }
+  renameInput.addEventListener("keydown", (e) => {
+    e.stopPropagation();
+    if (e.key === "Enter") { e.preventDefault(); commitRename(); }
+    if (e.key === "Escape") { e.preventDefault(); cancelRename(); }
+  });
+  renameInput.addEventListener("blur", () => { if (renamingOrbId) commitRename(); });
+
+  function renameOrb(orbId) {
+    // Try to position over the orb's current screen location
+    const projected = (galaxyProjectedCache || []).find(p => p.orb && p.orb.id === orbId);
+    const x = projected ? projected.pr.x : vw / 2;
+    const y = projected ? projected.pr.y : vh / 2;
+    showRenameInput(orbId, x, y);
+  }
+
+  function deleteOrb(orbId) {
+    if (orbList.length <= 1) {
+      // Can't delete only orb — flash a quick message instead
+      const hint = document.querySelector(".galaxy-hint");
+      if (hint) {
+        const original = hint.textContent;
+        hint.textContent = "can't delete your only orb";
+        setTimeout(() => { hint.textContent = original; }, 2000);
+      }
+      return;
+    }
+    const o = orbList.find(x => x.id === orbId);
+    if (!o) return;
+    // Show inline confirmation by reusing the rename input as a "type DELETE to confirm" prompt
+    const projected = (galaxyProjectedCache || []).find(p => p.orb && p.orb.id === orbId);
+    const x = projected ? projected.pr.x : vw / 2;
+    const y = projected ? projected.pr.y : vh / 2;
+    renamingOrbId = "_DELETE_" + orbId;
+    renameInput.value = "";
+    renameInput.placeholder = `type DELETE to release "${o.name}"`;
+    renameInput.classList.add("show");
+    requestAnimationFrame(() => {
+      const w = renameInput.offsetWidth, h = renameInput.offsetHeight;
+      renameInput.style.left = (x - w / 2) + "px";
+      renameInput.style.top = (y - h / 2) + "px";
+      renameInput.focus();
+    });
+    const confirmHandler = (e) => {
+      if (e.key !== "Enter") return;
+      e.preventDefault();
+      e.stopPropagation();
+      if (renameInput.value.trim().toUpperCase() === "DELETE") {
+        const prefix = `memory-orb.${orbId}.`;
+        Object.keys(localStorage).filter(k => k.startsWith(prefix)).forEach(k => localStorage.removeItem(k));
+        orbList = orbList.filter(x => x.id !== orbId);
+        saveOrbList();
+        if (activeOrbId === orbId) {
+          activeOrbId = orbList[0].id;
+          localStorage.setItem(ACTIVE_ORB_KEY, activeOrbId);
+          location.reload();
+        }
+      }
+      renameInput.removeEventListener("keydown", confirmHandler);
+      renameInput.placeholder = "";
+      renamingOrbId = null;
+      renameInput.classList.remove("show");
+    };
+    renameInput.addEventListener("keydown", confirmHandler);
+  }
+
+  document.getElementById("btn-galaxy").addEventListener("click", () => {
+    if (viewMode === "galaxy") {
+      exitGalaxyMode();
+    } else {
+      enterGalaxyMode();
+    }
+  });
+  document.getElementById("galaxy-new").addEventListener("click", newOrb);
+  document.getElementById("galaxy-floating-new").addEventListener("click", newOrb);
+
+  // Close galaxy menu when other action buttons are clicked
+  ["btn-themes","btn-ambient","btn-patterns","btn-constellations","btn-browse","btn-export","btn-import"].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.addEventListener("click", () => galaxyPanel.classList.remove("open"));
+  });
 
   // ============================================================
   // AMBIENT MODE
